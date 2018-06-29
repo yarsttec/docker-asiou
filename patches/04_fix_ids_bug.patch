@@ -1,0 +1,65 @@
+--- a/asiou/common/contingent_functions.py
++++ b/asiou/common/contingent_functions.py
+@@ -846,7 +846,7 @@
+                 for edit_person in edit_persons:
+                     ob_ids = list_of(edit_person.changed_objects.filter(object_type__in=(1, )).values('object_id'), 'object_id')
+                     ids += ob_ids
+-
++            ids = list(set(ids))
+             all_persons = all_persons.filter(id__in=ids)
+
+     person_list = []
+@@ -2178,7 +2178,7 @@
+                 for edit_person in edit_persons:
+                     ob_ids = list_of(edit_person.changed_objects.filter(object_type__in=(1, 132, 2, 4, 133, 257)).values('object_id'), 'object_id')
+                     ids += ob_ids
+-
++            ids = list(set(ids))
+             person_in = person_in.filter(id__in = ids)
+             q_person_out = q_person_out.filter(id__in = ids)
+
+--- a/asiou/export_cont/views.py
++++ b/asiou/export_cont/views.py
+@@ -213,24 +213,24 @@
+     zip_file = u""
+     cache_flag = False
+
+-    exports = ASIOU_CONT_Export.objects.filter(result=2).order_by('-time')
+-    if len(exports):
+-        time = datetime.now() - exports[0].time
+-        if time.seconds < CACHE_TIME:
+-            ids = []
+-            if export_type == 'diff':
+-                if len(exports):
+-                    last_export = exports[0]
+-                    edit_persons = Audit.objects.filter(date__gte=last_export.time)
+-                    if len(edit_persons):
+-                        for edit_person in edit_persons:
+-                            ob_ids = list_of(edit_person.changed_objects.filter(object_type__in=(1, 132, 2, 4)).values('object_id'), 'object_id')
+-                            ids += ob_ids
+-
+-            if not ids:
+-                cache_flag = True
+-
+-    cache_flag = False
++    #exports = ASIOU_CONT_Export.objects.filter(result=2).order_by('-time')
++    #if len(exports):
++    #    time = datetime.now() - exports[0].time
++    #    if time.seconds < CACHE_TIME:
++    #        ids = []
++    #        if export_type == 'diff':
++    #            if len(exports):
++    #                last_export = exports[0]
++    #                edit_persons = Audit.objects.filter(date__gte=last_export.time)
++    #                if len(edit_persons):
++    #                    for edit_person in edit_persons:
++    #                        ob_ids = list_of(edit_person.changed_objects.filter(object_type__in=(1, 132, 2, 4)).values('object_id'), 'object_id')
++    #                        ids += ob_ids
++    #
++    #        if not ids:
++    #            cache_flag = True
++    #
++    #cache_flag = False
+
+     if not cache_flag:
+         for fname, _fun in ARR_JSON_NAMES.items():

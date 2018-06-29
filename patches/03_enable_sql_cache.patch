@@ -1,0 +1,35 @@
+--- a/asiou/settings.py
++++ b/asiou/settings.py
+@@ -37,6 +37,13 @@
+     }
+ }
+
++CACHES = {
++    'default': {
++        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
++        'JOHNNY_CACHE': True
++    }
++}
++
+ # User profile module
+ AUTH_PROFILE_MODULE = 'ASIOU_U_UserProfile'
+
+@@ -100,6 +107,8 @@
+ )
+
+ MIDDLEWARE_CLASSES = (
++    'johnny.middleware.LocalStoreClearMiddleware',
++    'johnny.middleware.QueryCacheMiddleware',
+     'django.middleware.common.CommonMiddleware',
+     'django.contrib.sessions.middleware.SessionMiddleware',
+     'django.middleware.transaction.TransactionMiddleware',
+@@ -119,6 +128,9 @@
+     # Don't forget to use absolute paths, not relative paths.
+     os.path.abspath(BASE_PATH + '/../tpls'),
+ )
++
++
++JOHNNY_MIDDLEWARE_KEY_PREFIX = 'jc_asiou'
+
+ # List of installed apps
+ INSTALLED_APPS = (

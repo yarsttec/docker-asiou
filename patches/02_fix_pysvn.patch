@@ -1,0 +1,11 @@
+--- a/asiou/views.py
++++ b/asiou/views.py
+@@ -38,7 +38,7 @@
+ @login_required
+ @check_rights()
+ def index(request):
+-    import pysvn
++    #import pysvn
+     resp_dict = {}
+     # Объявление на пузике АСИОУ
+     try:
