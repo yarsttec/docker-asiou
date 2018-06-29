@@ -1,6 +1,3 @@
-#
-#
-#
 FROM alpine:3.7
 LABEL maintainer="Sergey Yarkin <sega.yarkin@gmail.com>"
 
@@ -102,9 +99,8 @@ RUN set -ex; \
     rm -f /tmp/www*/tpls/select_otype1.html; \
     # Move to right place
     mv /tmp/www*/* ${WWW_HOME}/; \
-    rm -rf /tmp/*
-
-RUN set -ex; \
+    rm -rf /tmp/*; \
+    # Update files
     find "$WWW_HOME/asiou" -type f -name *.py -exec dos2unix '{}' \;; \
     chown -R www-data: "$WWW_HOME"
 
