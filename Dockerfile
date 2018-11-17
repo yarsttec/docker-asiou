@@ -1,4 +1,4 @@
-FROM alpine:3.7
+FROM alpine:3.8
 LABEL maintainer="Sergey Yarkin <sega.yarkin@gmail.com>"
 
 # Install required software
@@ -66,7 +66,7 @@ RUN set -ex; \
           ${WWW_HOME}/media
 
 # Download ASIOU distribution
-ENV ASIOU_VERSION=7.5.8
+ENV ASIOU_VERSION=7.5.9
 RUN set -ex; \
     # Download and extract files
     wget -qO/tmp/asiou.zip "http://asiou.coikko.ru/static/update_version/www${ASIOU_VERSION}.zip"; \
