@@ -4,7 +4,7 @@
      :param request:
      :return: HttpResponse()
      """
-+    return HttpResponse(e, status=321)
++    return HttpResponse('last_version')
      try:
          import pysvn
          work_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))  # путь к проекту
