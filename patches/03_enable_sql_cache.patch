@@ -1,12 +1,13 @@
 --- a/asiou/settings.py
 +++ b/asiou/settings.py
-@@ -37,6 +37,13 @@
+@@ -37,6 +37,14 @@
      }
  }
 
 +CACHES = {
 +    'default': {
-+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
++        'BACKEND': 'johnny.backends.memcached.MemcachedCache',
++        'LOCATION': ['127.0.0.1:11211'],
 +        'JOHNNY_CACHE': True
 +    }
 +}

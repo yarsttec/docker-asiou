@@ -1,0 +1,33 @@
+--- a/asiou/settings.py
++++ b/asiou/settings.py
+@@ -3,6 +3,7 @@
+ import platform
+ import zipfile
+ from ConfigParser import RawConfigParser
++import os
+
+ # Django settings for ASIOU project.
+ DEBUG = True
+@@ -24,14 +25,16 @@
+ if os.path.exists(app_ini) and os.path.isfile(app_ini):
+     app_conf.read(app_ini)
+
++db_param = lambda name: os.environ.get(name) or dbconf.get('database', name)
++
+ DATABASES = {
+     'default': {
+-        'ENGINE': dbconf.get('database', 'DATABASE_ENGINE'),
+-        'HOST': dbconf.get('database', 'DATABASE_HOST'),
+-        'NAME': dbconf.get('database', 'DATABASE_NAME'),
+-        'USER': dbconf.get('database', 'DATABASE_USER'),
+-        'PASSWORD': dbconf.get('database', 'DATABASE_PASSWORD'),
+-        'PORT': dbconf.get('database', 'DATABASE_PORT'),
++        'ENGINE': db_param('DATABASE_ENGINE'),
++        'HOST': db_param('DATABASE_HOST'),
++        'NAME': db_param('DATABASE_NAME'),
++        'USER': db_param('DATABASE_USER'),
++        'PASSWORD': db_param('DATABASE_PASSWORD'),
++        'PORT': db_param('DATABASE_PORT'),
+         'CONN_MAX_AGE': 60 * 10,  # 10 minutes
+         # 'OPTIONS': {"init_command": "SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;"},
+     }

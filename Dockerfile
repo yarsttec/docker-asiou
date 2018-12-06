@@ -1,54 +1,67 @@
-FROM alpine:3.8
+FROM ubuntu:18.04
 LABEL maintainer="Sergey Yarkin <sega.yarkin@gmail.com>"
 
-# Install required software
-COPY python_requirements.txt /tmp/requirements.txt
+# Install required libraries
 RUN set -ex; \
-    # Create user and group
-    addgroup -g 82 -S www-data; \
-    adduser -u 82 -D -S -G www-data www-data; \
-    # Install required libraries
-    apk add --no-cache \
-            wget \
-            jpeg \
-            libxml2 \
-            libxslt \
-            mysql-client \
-            mariadb-connector-c \
-            libressl \
-            patch \
-            supervisor \
-            zlib \
-            python2 \
-            py2-pip \
-    ; \
-    # Install packages for building
-    apk add --virtual .build-deps --no-cache \
-            build-base \
-            jpeg-dev \
-            libffi-dev \
-            libxml2-dev \
-            libxslt-dev \
-            linux-headers \
-            musl-dev \
-            python2-dev \
-            zlib-dev \
-            libressl-dev \
-            mariadb-connector-c-dev \
+    export DEBIAN_FRONTEND=noninteractive; \
+    apt-get update; \
+    apt-get install --no-install-recommends -y \
+      openssl \
+      ca-certificates \
+      wget \
+      unzip \
+      dos2unix \
+      patch \
+      libmysqlclient20 \
+      mysql-client \
+      python2.7 \
+      python-pip \
+      libxml2 \
+      libxslt1.1 \
+      nginx-light \
+      memcached \
+      telnet \
+      optipng \
     ; \
     # Prepare Python
-    python -m pip install --no-cache-dir --upgrade pip; \
-    # Install python packages required by ASIOU
-    pip install --no-cache-dir -r /tmp/requirements.txt ;\
-    # Install additional python packages
-    pip install --no-cache-dir "johnny-cache==1.4"; \
-    # Install nginx
-    apk add --no-cache nginx; \
-    rm -r /etc/nginx/conf.d/; \
-    # Clear
-    apk del .build-deps; \
+    python -m pip install --upgrade pip; \
+    pip2 install --no-cache-dir setuptools; \
+    # Clean
+    apt-get clean; \
+    rm -rf /var/lib/apt/lists/*; \
     rm -rf /root/.cache; \
-    rm -f /root/.ash_history; \
+    rm -rf /tmp/*
+
+# Install python packages required by ASIOU
+COPY python_requirements.txt /tmp/requirements.txt
+RUN set -ex; \
+    export DEBIAN_FRONTEND=noninteractive; \
+    apt-get update; \
+    # Install packages for building
+    apt-get install --no-install-recommends -y \
+      build-essential \
+      libmysqlclient-dev \
+      python2.7-dev \
+      libssl-dev \
+    ; \
+    #
+    pip2 install --no-cache-dir \
+      "supervisor~=3.0" \
+      "python-memcached~=1.59" \
+      "johnny-cache==1.4" \
+    ; \
+    pip2 install --no-cache-dir -r /tmp/requirements.txt; \
+    # Clean
+    apt-get remove --purge -y \
+      build-essential \
+      libmysqlclient-dev \
+      python2.7-dev \
+      libssl-dev \
+    ; \
+    apt-get autoremove --purge -y; \
+    apt-get clean; \
+    rm -rf /var/lib/apt/lists/*; \
+    rm -rf /root/.cache; \
     rm -rf /tmp/*
 
 
@@ -80,52 +93,37 @@ RUN set -ex; \
              $WWW_HOME/patches/*.sh \
              /entrypoint.sh
 
-ARG BUILD_DATE
-LABEL asiou.version=${ASIOU_VERSION} \
-      asiou.build-date=${BUILD_DATE}
 
 # Install ASIOU distribution
 ENV ASIOU_VERSION=7.5.9
 RUN set -ex; \
-    # Download and extract files
-    wget -qO/tmp/asiou.zip "http://asiou.coikko.ru/static/update_version/www${ASIOU_VERSION}.zip"; \
-    unzip -q /tmp/asiou.zip -d /tmp/ \
-            '*/asiou/**.py' \
-            '*/asiou/soap_api/cert/*' \
-            '*/static/*' \
-            '*/sql/updatedb/2018*' \
-            '*/tpls/*' \
-            '*/asiou.ico'; \
-    # Remove trash
-    find /tmp/www*/ -name "Thumbs.db" -delete; \
-    find /tmp/www*/ -name "views?*.py" -delete; \
-    find /tmp/www*/ ! -name "utils.py" -a  -name "util?*.py" -delete; \
-    find /tmp/www*/ -name "urls?*.py" -delete; \
-    find /tmp/www*/ -name "models?*.py" -delete; \
-    rm -rf \
-      /tmp/www*/asiou/common/r_functions{1,2}.py \
-      /tmp/www*/asiou/management/commands/edit_pe_docum_member1.py \
-      /tmp/www*/asiou/reports_stats/function_662.py \
-      /tmp/www*/asiou/rhd_settings.py \
-      /tmp/www*/asiou/settings_s.py \
-      /tmp/www*/asiou/tmp/*; \
-    find /tmp/www*/static/ -name "*1.xml" -delete; \
-    rm -rf \
-      /tmp/www*/static/images/psy_questions/* \
-      /tmp/www*/tpls/douq_small_add.html.new \
-      /tmp/www*/tpls/ed_programm1.html \
-      /tmp/www*/tpls/*.zip \
-      /tmp/www*/tpls/marks/marks1.html \
-      /tmp/www*/tpls/psy/marks1.html \
-      /tmp/www*/tpls/select_otype1.html; \
-    # Move to right place
-    cp -r /tmp/www*/* ${WWW_HOME}/; \
-    rm -rf /tmp/*; \
-    # Update files
-    find "$WWW_HOME/asiou" -type f -name *.py -exec dos2unix '{}' \;; \
-    chown -R www-data: "$WWW_HOME"; \
+    # Download and install
+    $WWW_HOME/scripts/install-asiou.sh; \
     # Applying patches
-    ${WWW_HOME}/patches/00_patch.sh
+    $WWW_HOME/patches/00_patch.sh; \
+    # Compile source code
+    python -W ignore -m compileall -f -qq $WWW_HOME/asiou; \
+    # Prepare compressed static files
+    find $WWW_HOME/static \
+        -type f \
+        -regextype posix-extended \
+        -iregex '.*\.(css|js|html?|ttf)' \
+        -exec gzip -9 -k -q '{}' \;; \
+    # Optimize images
+    find $WWW_HOME/static \
+        -type f \
+        -regextype posix-extended \
+        -iregex '.*\.(png|gif)' \
+        -exec optipng -o3 -q '{}' \;
+
+ENV ASIOU_DOMAIN= \
+    ASIOU_HTTPS_ONLY=false \
+    DEBUG_ASIOU=false \
+    DEBUG_SQL=false
+
+ARG BUILD_DATE
+LABEL asiou.version=${ASIOU_VERSION} \
+      asiou.build-date=${BUILD_DATE}
 
 HEALTHCHECK --interval=1m --timeout=10s \
     CMD [ $(wget -O/dev/null --max-redirect=0 http://127.0.0.1:8080/ 2>&1 | grep '302 FOUND' | wc -l) -eq 1 ] || exit 1

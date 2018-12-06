@@ -1,11 +1,10 @@
---- a/asiou/views.py
-+++ b/asiou/views.py
-@@ -38,7 +38,7 @@
- @login_required
- @check_rights()
- def index(request):
--    import pysvn
-+    #import pysvn
-     resp_dict = {}
-     # Объявление на пузике АСИОУ
+--- a/asiou/ajax/views.py
++++ b/asiou/ajax/views.py
+@@ -3291,6 +3291,7 @@
+     :param request:
+     :return: HttpResponse()
+     """
++    return HttpResponse(e, status=321)
      try:
+         import pysvn
+         work_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))  # путь к проекту

@@ -1,0 +1,39 @@
+--- a/asiou/settings.py
++++ b/asiou/settings.py
+@@ -6,7 +6,7 @@
+ import os
+
+ # Django settings for ASIOU project.
+-DEBUG = True
++DEBUG = os.environ.get('DEBUG_ASIOU') == 'true'
+ TEMPLATE_DEBUG = DEBUG
+ EMAIL_DEBUG = DEBUG
+ # ADMINS = [('Dmitry', 'kortodd@yandex.ru'), ] # добавляем имя и мыло для отправки ошибок на данный ящик
+@@ -232,6 +232,11 @@
+             'level': 'ERROR',
+             'class': 'django.utils.log.AdminEmailHandler',
+         },
++        'console': {
++            'level': 'DEBUG' if DEBUG else 'INFO',
++            'class': 'logging.StreamHandler',
++            'formatter': 'default',
++        },
+         'file': {
+             'level': 'DEBUG',
+             'class': 'logging.handlers.RotatingFileHandler',
+@@ -242,6 +247,15 @@
+         }
+     },
+     'loggers': {
++        'django.db.backends': {
++            'level': 'DEBUG' if os.environ.get('DEBUG_SQL') == 'true' else 'ERROR',
++            'handlers': ['console'],
++            'propagate': False,
++        },
++        'django': {
++            'level': 'DEBUG',
++            'handlers': ['console'],
++        },
+         # 'django.request': {
+         #     'handlers': ['mail_admins'],
+         #     'level': 'ERROR',
