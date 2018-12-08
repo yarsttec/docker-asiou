@@ -9,6 +9,7 @@ RUN set -ex; \
       openssl \
       ca-certificates \
       wget \
+      zip \
       unzip \
       dos2unix \
       patch \
@@ -23,6 +24,9 @@ RUN set -ex; \
       telnet \
       optipng \
     ; \
+    # Nginx directories
+    mkdir -p /var/lib/nginx/logs /var/run/nginx; \
+    chown -R www-data: /var/lib/nginx /var/run/nginx; \
     # Prepare Python
     python -m pip install --upgrade pip; \
     pip2 install --no-cache-dir setuptools; \
@@ -68,7 +72,8 @@ RUN set -ex; \
 ENV HOME=/srv \
     WWW_HOME=/srv/asiou \
     RUN_DIR=/srv/asiou/run \
-    LOG_DIR=/srv/asiou/log
+    LOG_DIR=/srv/asiou/log \
+    TEMP_DIR=/srv/asiou/temp
 
 ENV DATABASE_HOST=127.0.0.1 \
     DATABASE_PORT=3306 \
@@ -127,6 +132,18 @@ LABEL asiou.version=${ASIOU_VERSION} \
 
 HEALTHCHECK --interval=1m --timeout=10s \
     CMD [ $(wget -O/dev/null --max-redirect=0 http://127.0.0.1:8080/ 2>&1 | grep '302 FOUND' | wc -l) -eq 1 ] || exit 1
+
+# Prepare directories
+RUN set -ex; \
+    mkdir -p "$RUN_DIR" "$LOG_DIR" "$TEMP_DIR"; \
+    touch "$LOG_DIR/cont_export.log"; \
+    chown -R www-data: "$RUN_DIR" "$LOG_DIR" "$TEMP_DIR"; \
+    chmod -R g+w "$LOG_DIR"
+
+
+VOLUME /srv/asiou/log
+VOLUME /srv/asiou/temp
+VOLUME /srv/backup
 
 EXPOSE 8080
 ENTRYPOINT ["/entrypoint.sh"]

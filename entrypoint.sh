@@ -1,20 +1,6 @@
 #!/bin/bash
 set -e
 
-init_work_dir() {
-  mkdir -p "$RUN_DIR" "$LOG_DIR"
-  touch "$LOG_DIR/cont_export.log"
-  chown -R www-data: "$RUN_DIR" "$LOG_DIR"
-  chmod -R g+w "$LOG_DIR"
-}
-
-init_nginx_dir() {
-  mkdir -p /var/lib/nginx/{logs,body}
-  chown -R www-data: /var/lib/nginx
-  mkdir -p /var/run/nginx
-  chown www-data: /var/run/nginx
-}
-
 export MYSQL_PWD="$DATABASE_PASSWORD"
 get_mysql_cmd() {
   echo "/usr/bin/mysql -h $DATABASE_HOST -P $DATABASE_PORT -D $DATABASE_NAME \
@@ -63,8 +49,6 @@ run_restore() {
 }
 
 #=========================
-init_work_dir
-init_nginx_dir
 # Update ASIOU options
 if [ ! -z "$ASIOU_OPTIONS" ]; then
   echo "$ASIOU_OPTIONS" | base64 -d > "$WWW_HOME/asiou/options.ini"

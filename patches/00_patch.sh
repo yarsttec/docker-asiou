@@ -11,3 +11,6 @@ patch -p 1 -i patches/05_disable_wintools.patch
 patch -p 1 -i patches/06_db_from_environ.patch
 patch -p 1 -i patches/07_enable_std_logs.patch
 patch -p 1 -i patches/08_tune_sessions.patch
+patch -p 1 -i patches/09_add_db_connection_for_reports.patch
+patch -p 1 -i patches/10_optimize_export_rhd.patch
+patch -p 1 -i patches/11_secret_key_from_environ.patch

@@ -1,0 +1,189 @@
+--- a/asiou/export_rhd/utils.py
++++ b/asiou/export_rhd/utils.py
+@@ -72,6 +72,20 @@
+     'asiou_i_types',
+     'asiou_rhd_export',
+ ]
++UNLOAD_TABLE_PREFIXES = [
++    'asiou_dict',
++    'asiou_d_',
++    'asiou_k_',
++    'asiou_douq',
++    'asiou_u_user_',
++    'audit',
++    'auth_',
++    'celery_',
++    'django_',
++    'soap_api_',
++    'djcelery_',
++    'djkombu_',
++]
+
+
+
+@@ -107,7 +121,7 @@
+     # quality_calculate
+
+     # Установим курсор
+-    cursor = connection.cursor()
++    cursor = connections['for_reports'].cursor()
+     dbname = connections.databases['default']['NAME']
+
+     gia_participants = ASIOU_GIA_Participant.objects.filter()
+@@ -136,38 +150,9 @@
+         tables = connection.introspection.get_table_list(cursor=cursor)
+
+         # Массив не выгружаемых таблиц
+-        table2 = UNLOAD_TABLE
+-        for t in tables:
+-            f=0
+-            if t.startswith('asiou_dict'):
+-                f=1
+-            if t.startswith('asiou_d_'):
+-                f=1
+-            if t.startswith('asiou_k_'):
+-                f=1
+-            if t.startswith('asiou_douq'):
+-                f=1
+-            if t.startswith('asiou_u_user_'):
+-                f=1
+-            if t.startswith('audit'):
+-                f=1
+-            if t.startswith('auth_'):
+-                f=1
+-            if t.startswith('celery_'):
+-                f=1
+-            if t.startswith('django_'):
+-                f=1
+-            if t.startswith('soap_api_'):
+-                f=1
+-            if t.startswith('djcelery_'):
+-                f=1
+-            if t.startswith('djkombu_'):
+-                f=1
+-
+-            if f==1 :
+-                table2.append(t)
+-
+-
++        table2 = [t for t in tables
++                  if len([p for p in UNLOAD_TABLE_PREFIXES if t.startswith(p)]) > 0]
++        table2 += UNLOAD_TABLE
+
+
+     # Массив заменяемых доп.параметров
+@@ -214,7 +199,7 @@
+                     writer.writerow([col[0] for col in desc_table])
+
+                     # Содержимое таблицы
+-                    for row in cursor.fetchall():
++                    for row in cursor:
+                         i = 0
+                         k = 0
+                         k1 = 0
+@@ -396,29 +381,31 @@
+                     # messages.error(request, u'Error: %s' % e)
+                     csvfile.close()
+
++    cursor.close()
++
+     # Открываем StringIO, чтобы захватить в памяти содержимое ZIP
+     s = StringIO.StringIO()
+
+-    # Объект архива
+-    zf = zipfile.ZipFile(s, 'w', settings.APP_ZIP_COMPRESS)
+-    for filename in filenames:
+-        # try:
+-            # Путь до файла во временной папке
+-            fpath = os.path.join(settings.APP_RID_EXPORT_DIR, filename)
+-
+-            # Добавляем файл по заданному пути
+-            zf.write(fpath, filename)
+-        # except Exception as e:
+-        #     messages.error(request, u'Error: %s' % e)
+-
+-    # Добавим в список файлов, файл с текущей версией БД
+-    zf.write(settings.APP_DBVER_FILE, os.path.basename(settings.APP_DBVER_FILE))
+-    if type_rep == 'rep':
+-        fpath = os.path.join(os.path.dirname(settings.APP_DBVER_FILE), 'options.ini')
+-        zf.write(fpath, os.path.basename(fpath))
+-
+-    # Закрываем архив
+-    zf.close()
++    # # Объект архива
++    # zf = zipfile.ZipFile(s, 'w', settings.APP_ZIP_COMPRESS)
++    # for filename in filenames:
++    #     # try:
++    #         # Путь до файла во временной папке
++    #         fpath = os.path.join(settings.APP_RID_EXPORT_DIR, filename)
++    #
++    #         # Добавляем файл по заданному пути
++    #         zf.write(fpath, filenam.e)
++    #     # except Exception as e:
++    #     #     messages.error(request, u'Error: %s' % e)
++    #
++    # # Добавим в список файлов, файл с текущей версией БД
++    # zf.write(settings.APP_DBVER_FILE, os.path.basename(settings.APP_DBVER_FILE))
++    # if type_rep == 'rep':
++    #     fpath = os.path.join(os.path.dirname(settings.APP_DBVER_FILE), 'options.ini')
++    #     zf.write(fpath, os.path.basename(fpath))
++    #
++    # # Закрываем архив
++    # zf.close()
+
+     # Возьмем версию БД и дату сборки если есть
+     dbver = 0
+@@ -435,4 +422,14 @@
+     # Имя архива
+     zipfile_name = 'exp-v%s-%s-%s.zip' % (dbver, ou_id, datetime.now().strftime('%y%m%d-%H%M'))
+
++    # Для сжатия больших объёмов данных используем подходящий инструмент
++    from subprocess import check_call
++    full_filenames = [os.path.join(settings.APP_RID_EXPORT_DIR, fname) for fname in filenames]
++    full_filenames.append(settings.APP_DBVER_FILE)
++    if type_rep == 'rep':
++        full_filenames.append(os.path.join(os.path.dirname(settings.APP_DBVER_FILE), 'options.ini'))
++    zipfile_fullname = os.path.join(settings.APP_RID_EXPORT_DIR, zipfile_name)
++
++    check_call(["/usr/bin/zip", "-5", "-j", zipfile_fullname] + full_filenames)
++
+     return zipfile_name, s
+--- a/asiou/reports/views.py
++++ b/asiou/reports/views.py
+@@ -961,6 +961,7 @@
+     # Захватываем ZIP из памяти и отдаем его
+     resp_dict = HttpResponse(s.getvalue(), mimetype = "application/x-zip-compressed")
+     resp_dict['Content-Disposition'] = 'attachment; filename=%s' % zipfile_name
++    resp_dict['X-Accel-Redirect'] = '/temp-download/%s' % zipfile_name
+
+     return resp_dict
+
+--- a/asiou/export_rhd/tasks.py
++++ b/asiou/export_rhd/tasks.py
+@@ -8,6 +8,9 @@
+ from asiou.export_rhd.utils import make_export_file
+ from asiou.export_rhd.models import ASIOU_RHD_Export
+
++from django.conf import settings
++import os
++
+
+ class PackageLoadCallback(task.Task):
+     """ Класс позволяет выполнить какие либо действия по результатам выгрузки,
+@@ -53,12 +56,15 @@
+
+     try:
+         filename, result = make_export_file(None, export_type,institution.pk)
++        full_filename = os.path.join(settings.APP_RID_EXPORT_DIR, filename)
++        with open(full_filename, mode='rb') as file:
++            result = file.read()
+     except:
+         raise Exception
+
+     # Постановка в очередь
+     login, password, proto = _claim_get_user_passwd(institution)
+-    files = {filename: result.getvalue()}
++    files = {filename: result}
+     data = {'filename': filename}
+     response = _do_rpc(
+         'load_package', auth=(login, password), method='post', data=data,
