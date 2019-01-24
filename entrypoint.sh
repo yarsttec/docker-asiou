@@ -48,6 +48,11 @@ run_restore() {
   "$WWW_HOME/scripts/restore.sh" "$file_name"
 }
 
+run_shell() {
+  prepare_asiou_db_configs
+  exec /bin/bash
+}
+
 #=========================
 # Update ASIOU options
 if [ ! -z "$ASIOU_OPTIONS" ]; then
@@ -80,6 +85,9 @@ case "$1" in
     ;;
   "cont-export-diff")
     run_script "cont-export-diff"
+    ;;
+  "shell")
+    run_shell
     ;;
 
   *)

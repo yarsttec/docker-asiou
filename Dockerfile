@@ -20,16 +20,29 @@ RUN set -ex; \
       libxml2 \
       libxslt1.1 \
       nginx-light \
-      memcached \
+      redis \
       telnet \
       optipng \
+      # NOTE: try Nginx Unit instead of Apache
+      # https://unit.nginx.org/howto/django/
+      apache2 \
+      libapache2-mod-wsgi \
     ; \
     # Nginx directories
-    mkdir -p /var/lib/nginx/logs /var/run/nginx; \
-    chown -R www-data: /var/lib/nginx /var/run/nginx; \
+    mkdir -p /var/lib/nginx/logs \
+             /var/run/nginx; \
+    chown -R www-data: /var/lib/nginx \
+                       /var/run/nginx; \
+    # Prepare Apache
+    rm -rf /etc/apache2/sites-enabled/* \
+           /etc/apache2/sites-available/* \
+           /var/log/apache2/*; \
+    chown -R www-data: /var/log/apache2 \
+                       /var/run/apache2 \
+                       /var/lock/apache2; \
     # Prepare Python
-    python -m pip install --upgrade pip; \
-    pip2 install --no-cache-dir setuptools; \
+    python -m pip install --upgrade "pip~=18.1"; \
+    pip2 install --no-cache-dir "setuptools~=40.6.3"; \
     # Clean
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*; \
@@ -51,10 +64,11 @@ RUN set -ex; \
     #
     pip2 install --no-cache-dir \
       "supervisor~=3.0" \
-      "python-memcached~=1.59" \
-      "johnny-cache==1.4" \
+      "django-cacheops~=4.1" \
     ; \
     pip2 install --no-cache-dir -r /tmp/requirements.txt; \
+    pip2 install --upgrade --no-cache-dir \
+      https://github.com/sokolovs/django-piston/archive/master.tar.gz; \
     # Clean
     apt-get remove --purge -y \
       build-essential \
@@ -84,26 +98,31 @@ ENV DATABASE_HOST=127.0.0.1 \
 # Prepare
 RUN set -ex; \
     mkdir -p ${HOME} ${WWW_HOME}; \
-    ln -s /usr/lib/python2.7/site-packages/django/contrib/admin/media \
+    ln -s /usr/local/lib/python2.7/dist-packages/django/contrib/admin/static/admin \
           ${WWW_HOME}/media
 
 COPY scripts ${WWW_HOME}/scripts/
 COPY asiou ${WWW_HOME}/asiou/
 COPY patches ${WWW_HOME}/patches/
 COPY nginx /etc/nginx/
+COPY apache2 /etc/apache2/
+COPY redis /etc/redis/
 COPY supervisord.conf /etc/supervisord.conf
 COPY entrypoint.sh /entrypoint.sh
 RUN set -ex; \
+    ln -s ../sites-available/django-asiou.conf \
+          /etc/apache2/sites-enabled/django-asiou.conf; \
     chmod +x $WWW_HOME/scripts/*.sh \
              $WWW_HOME/patches/*.sh \
              /entrypoint.sh
 
 
 # Install ASIOU distribution
-ENV ASIOU_VERSION=7.5.9
+ENV ASIOU_VERSION=7.6
 RUN set -ex; \
     # Download and install
     $WWW_HOME/scripts/install-asiou.sh; \
+    ln -s asiou/wsgi.py $WWW_HOME/wsgi.py; \
     # Applying patches
     $WWW_HOME/patches/00_patch.sh; \
     # Compile source code

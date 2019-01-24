@@ -1,6 +1,6 @@
 --- a/asiou/settings.py
 +++ b/asiou/settings.py
-@@ -40,6 +40,10 @@
+@@ -47,6 +47,10 @@
      }
  }
 
@@ -8,6 +8,6 @@
 +DATABASES['for_reports'] = DATABASES['default'].copy()
 +DATABASES['for_reports']['OPTIONS'] = {'cursorclass': MySQLCursors.SSCursor}
 +
- CACHES = {
-     'default': {
-         'BACKEND': 'johnny.backends.memcached.MemcachedCache',
+ # User profile module
+ AUTH_PROFILE_MODULE = 'asiou.accounts.models.ASIOU_U_UserProfile'
+ 

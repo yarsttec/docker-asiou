@@ -1,6 +1,6 @@
 --- a/asiou/settings.py
 +++ b/asiou/settings.py
-@@ -282,8 +282,10 @@
+@@ -356,8 +356,10 @@
  AUDIT_IP = '127.0.0.1'
 
  # Session expire settings

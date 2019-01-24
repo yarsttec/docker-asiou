@@ -11,11 +11,13 @@ unzip -q "$DISTR_FILE" -d "$DISTR_DIR" \
   '*/asiou/**.py' \
   '*/asiou/soap_api/cert/*' \
   '*/static/*' \
-  '*/sql/updatedb/*' \
+  '*/static_new/*' \
+  '*/sql/django_migrations.sql' \
+  '*/sql/init_structure.sql' \
+  '*/sql/updatedb/**' \
   '*/tpls/*' \
-  '*/asiou.ico' \
   -x \
-  '*/sql/updatedb/201[234567]*'
+  '*/sql/updatedb/201[234567]**'
 
 pushd $DISTR_DIR/www*
 
@@ -28,13 +30,11 @@ find ./ -name "models?*.py" -delete
 rm -rf \
   ./asiou/common/r_functions{1,2}.py \
   ./asiou/management/commands/edit_pe_docum_member1.py \
-  ./asiou/reports_stats/function_662.py \
   ./asiou/rhd_settings.py \
   ./asiou/settings_s.py \
   ./asiou/tmp/*
 find ./static/ -name "*1.xml" -delete
 rm -rf \
-  ./static/images/psy_questions/* \
   ./tpls/douq_small_add.html.new \
   ./tpls/ed_programm1.html \
   ./tpls/*.zip \
