@@ -8,6 +8,7 @@ DISTR_DIR=$(mktemp -d)
 
 wget -qO"$DISTR_FILE" "$URL"
 unzip -q "$DISTR_FILE" -d "$DISTR_DIR" \
+  '*/manage.py' \
   '*/asiou/**.py' \
   '*/asiou/soap_api/cert/*' \
   '*/static/*' \
