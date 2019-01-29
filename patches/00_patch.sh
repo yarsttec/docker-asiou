@@ -16,3 +16,6 @@ patch -p 1 -i patches/09_add_db_connection_for_reports.patch
 patch -p 1 -i patches/10_optimize_export_rhd.patch
 patch -p 1 -i patches/11_secret_key_from_environ.patch
 patch -p 1 -i patches/12_fix_index_page_performance.patch
+patch -p 1 -i patches/13_overall_performance.patch
+
+#patch -p 1 -i patches/00_enable_debug.patch

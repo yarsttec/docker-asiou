@@ -65,6 +65,7 @@ RUN set -ex; \
     pip2 install --no-cache-dir \
       "supervisor~=3.0" \
       "django-cacheops~=4.1" \
+      "django-debug-toolbar~=1.11" \
     ; \
     pip2 install --no-cache-dir -r /tmp/requirements.txt; \
     pip2 install --upgrade --no-cache-dir \
@@ -125,6 +126,8 @@ RUN set -ex; \
     ln -s asiou/wsgi.py $WWW_HOME/wsgi.py; \
     # Applying patches
     $WWW_HOME/patches/00_patch.sh; \
+    ln -s /usr/local/lib/python2.7/dist-packages/debug_toolbar/static/debug_toolbar \
+          ${WWW_HOME}/static_new/debug_toolbar; \
     # Compile source code
     python -W ignore -m compileall -f -qq $WWW_HOME/asiou; \
     # Prepare compressed static files
