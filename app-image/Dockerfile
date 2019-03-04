@@ -1,4 +1,4 @@
-FROM yarsttec/asiou:base
+FROM yarsttec/asiou:7.6-base
 
 # Prepare
 COPY scripts ${WWW_HOME}/scripts/
