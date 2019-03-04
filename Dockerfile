@@ -128,20 +128,8 @@ RUN set -ex; \
     $WWW_HOME/patches/00_patch.sh; \
     ln -s /usr/local/lib/python2.7/dist-packages/debug_toolbar/static/debug_toolbar \
           ${WWW_HOME}/static_new/debug_toolbar; \
-    # Compile source code
-    python -W ignore -m compileall -f -qq $WWW_HOME/asiou; \
-    # Prepare compressed static files
-    find $WWW_HOME/static \
-        -type f \
-        -regextype posix-extended \
-        -iregex '.*\.(css|js|html?|ttf)' \
-        -exec gzip -9 -k -q '{}' \;; \
-    # Optimize images
-    find $WWW_HOME/static \
-        -type f \
-        -regextype posix-extended \
-        -iregex '.*\.(png|gif)' \
-        -exec optipng -o3 -q '{}' \;
+    # Optimize distribution
+    $WWW_HOME/scripts/optimize-dist.sh
 
 ENV ASIOU_DOMAIN= \
     ASIOU_HTTPS_ONLY=false \

@@ -43,7 +43,7 @@ rm -rf \
   ./tpls/psy/marks1.html \
   ./tpls/select_otype1.html
 
-find ./asiou -type f -name '*.py' -exec dos2unix -q -k '{}' \;;
+find ./asiou -type f -name '*.py' -exec dos2unix -q -k '{}' \;
 
 # Move to right place
 cp -r ./* "${WWW_HOME}/"

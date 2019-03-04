@@ -4,9 +4,9 @@
              
              p_group_list = reindex_by(pe_group.values('person', 'office__general_code__id'), 'person', False, True)
  
--            flag_snils, snils_error_data, snils_error_data_c = prov_snils(request_context['context_institute'].id,today)
--            flag_bd, bd_error_data = prov_bd(request_context['context_institute'].id, today)
--            flag_length, length_error_data = prov_length(request_context['context_institute'].id, today)
+-            # flag_snils, snils_error_data, snils_error_data_c = prov_snils(request_context['context_institute'].id,today)
+-            # flag_bd, bd_error_data = prov_bd(request_context['context_institute'].id, today)
+-            # flag_length, length_error_data = prov_length(request_context['context_institute'].id, today)
 -
              persons_list_id = []
              persons_2_valid_list_id = []
@@ -48,7 +48,7 @@
              pe_group = ASIOU_PE_Group.objects.filter(Q(start_date__lte = today),
 --- a/asiou/common/prov_data.py
 +++ b/asiou/common/prov_data.py
-@@ -382,57 +382,26 @@
+@@ -383,57 +383,26 @@
 
      snils_dict = {}
      for p_vals in snils_params_vals:
@@ -120,27 +120,24 @@
 
 
      snils_error_data={}
-@@ -530,43 +499,23 @@
+@@ -529,41 +499,27 @@
      request_year = today.year
-     if today.month in range(1,10):
-         request_year-=1
+     if today.month in range(1, 10):
+         request_year -= 1
 -    d_id = ASIOU_PE_DocumMember.objects.filter(Q(group__education_year=request_year)).values('person_id')
--    pup_id = group_by(ASIOU_PE_Person.objects.filter(id__in=d_id).exclude(type__label__in=['work', 'pres']).values('id', 'type__label'), 'type__label')
--    work_id = ASIOU_PE_Person.objects.filter(out=0, type__label='work').values('id', 'type__label')
+-    pup_id = group_by(ASIOU_PE_Person.objects.filter(id__in=d_id, institute=institute_id).exclude(type__label__in=['work', 'pres']).values('id', 'type__label', 'birth_date', 'name', 'surname', 'patronymic', 'sex'), 'type__label')
+-    work_id = ASIOU_PE_Person.objects.filter(out=0, type__label='work')
 +    bdate_max_age5 = today - (date(6, 1, 1) - date(1, 1, 1))
 +    bdate_max_age6 = today - (date(7, 1, 1) - date(1, 1, 1))
 +    bdate_max_age14 = today - (date(15, 1, 1) - date(1, 1, 1))
 +    bdate_max_age18 = today - (date(19, 1, 1) - date(1, 1, 1))
-     bd_error_data={}
+     bd_error_data = defaultdict(list)
      # ПРОВЕРКА НА ВОЗРАСТ РАБОТНИКОВ
 -    for worker in work_id:
 -        try:
--            pers1 = ASIOU_PE_Person.objects.get(id=worker['id'])
--            if today - pers1.birth_date < date(19, 1, 1) - date(1, 1, 1):
--                # if worker not in bd_error_data:
--                if worker['type__label'] not in bd_error_data:
--                    bd_error_data[worker['type__label']] = []
--                bd_error_data[worker['type__label']].append(pers1)
+-            if today - worker.birth_date < date(19, 1, 1) - date(1, 1, 1):
+-                label = worker.type.label
+-                bd_error_data[label].append(worker)
 -        except:
 -            pass
 +    workers = ASIOU_PE_Person.objects.filter(out=0, type__label='work', birth_date__gt=bdate_max_age18).all()
@@ -150,31 +147,35 @@
 -    for label in pup_id:
 -        try:
 -            for p in pup_id[label]:
--                pers1 = ASIOU_PE_Person.objects.get(id=p['id'])
 -                if label == 'pup':
--                    if today - pers1.birth_date < date(7, 1, 1) - date(1, 1, 1):
--                        if label not in bd_error_data:
--                            bd_error_data[label] = []
--                        bd_error_data[label].append(pers1)
+-                    if today - p['birth_date'] < date(7, 1, 1) - date(1, 1, 1):
+-                        bd_error_data[label].append(p)
 -                if label == 'stud':
--                    if today - pers1.birth_date < date(15, 1, 1) - date(1, 1, 1):
--                        if label not in bd_error_data:
--                            bd_error_data[label] = []
--                        bd_error_data[label].append(pers1)
+-                    if today - p['birth_date'] < date(15, 1, 1) - date(1, 1, 1):
+-                        bd_error_data[label].append(p)
 -                if label == 'exp':
--                    if today - pers1.birth_date < date(6, 1, 1) - date(1, 1, 1):
--                        if label not in bd_error_data:
--                            bd_error_data[label] = []
--                        bd_error_data[label].append(pers1)
+-                    if today - p['birth_date'] < date(6, 1, 1) - date(1, 1, 1):
+-                        bd_error_data[label].append(p)
 -        except:
 -            pass
 +    d_id = ASIOU_PE_DocumMember.objects.filter(Q(group__education_year=request_year)).values('person_id')
 +    for (label, max_bdate) in [('exp', bdate_max_age5),
 +                               ('pup', bdate_max_age6),
 +                               ('stud', bdate_max_age14)]:
-+        persons = ASIOU_PE_Person.objects.filter(id__in=d_id, type__label=label, birth_date__gt=max_bdate).all()
-+        if len(persons) > 0:
-+            bd_error_data[label] = persons
-
++       persons = ASIOU_PE_Person.objects.filter(id__in=d_id, institute=institute_id, type__label=label, birth_date__gt=max_bdate).all()
++       if len(persons) > 0:
++           bd_error_data[label] = persons
+     # ПРОВЕРКА НА ПОЛ ОБУЧАЮЩИХСЯ
+-    for label in pup_id:
+-        try:
+-            for p in pup_id[label]:
+-                if p['sex'] == 3:
+-                    bd_error_data['sex'].append(p)
+-        except:
+-            pass
++    persons = ASIOU_PE_Person.objects.filter(id__in=d_id, institute=institute_id, type__label=label, sex=3).all()
++    if len(persons) > 0:
++        bd_error_data['sex'] = persons
+ 
      if len(bd_error_data) == 0:
          return True, []

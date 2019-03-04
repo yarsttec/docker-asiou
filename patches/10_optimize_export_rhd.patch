@@ -155,7 +155,7 @@
 +++ b/asiou/reports/views.py
 @@ -976,6 +976,7 @@
      # Захватываем ZIP из памяти и отдаем его
-     resp_dict = HttpResponse(s.getvalue(), mimetype = "application/x-zip-compressed")
+     resp_dict = HttpResponse(s.getvalue(), content_type = "application/x-zip-compressed")
      resp_dict['Content-Disposition'] = 'attachment; filename=%s' % zipfile_name
 +    resp_dict['X-Accel-Redirect'] = '/temp-download/%s' % zipfile_name
 
