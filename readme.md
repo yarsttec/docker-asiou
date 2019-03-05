@@ -167,6 +167,26 @@ docker run -it --rm \
 и снова запустить рабочий контейнер на свежей версии образа.
 
 
+## Миграция с 7.5.9
+
+Для миграция на версию 7.6 можно воспользоваться следующими командами:
+  1. Аналогично запустить контейнер, но с параметром `shell`, что позволит
+     выполнить произвольную команду в окружении приложения,
+  2. Подгрузить скрипт со вспомогательными функциями,
+  3. Запустить команды миграции БД
+```
+docker run -it --rm \
+    -e DATABASE_HOST=172.17.0.1 \
+    -e DATABASE_PASSWORD=AsiouPassword \
+    yarsttec/asiou shell
+
+root@hostname:/# source $HOME/asiou/scripts/utils.sh
+root@hostname:/# $(get_mysql_cmd) < $HOME/asiou/sql/django_migrations.sql
+root@hostname:/# run_script "update" asiou --fake
+root@hostname:/# run_script "update"
+```
+
+
 # Работа с бэкапами
 
 ## Введение
