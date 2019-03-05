@@ -11,6 +11,7 @@ RUN set -ex; \
       wget \
       zip \
       unzip \
+      cron \
       dos2unix \
       patch \
       libmysqlclient20 \
@@ -28,6 +29,7 @@ RUN set -ex; \
       apache2 \
       libapache2-mod-wsgi \
     ; \
+    rm -f /etc/crontab; \
     # Nginx directories
     mkdir -p /var/lib/nginx/logs \
              /var/run/nginx; \

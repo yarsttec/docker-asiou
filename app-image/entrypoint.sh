@@ -7,7 +7,14 @@ prepare_asiou_db_configs() {
   get_db_version > "$WWW_HOME/asiou/db.version"
 }
 
+prepare_rid_export_cron() {
+  if [ ! -z "$ASIOU_RID_EXPORT_CRON" ]; then
+    echo "$ASIOU_RID_EXPORT_CRON www-data $WWW_HOME/scripts/rid-export.sh" > /etc/cron.d/asiou-rid-export
+  fi
+}
+
 start_asiou() {
+  prepare_rid_export_cron
   prepare_asiou_db_configs
   clear_expired_sessions
   exec supervisord -c /etc/supervisord.conf
