@@ -1,0 +1,181 @@
+--- a/asiou/views.py
++++ b/asiou/views.py
+@@ -108,23 +108,22 @@
+             
+             p_group_list = reindex_by(pe_group.values('person', 'office__general_code__id'), 'person', False, True)
+ 
+-            # flag_snils, snils_error_data, snils_error_data_c = prov_snils(request_context['context_institute'].id,today)
+-            # flag_bd, bd_error_data = prov_bd(request_context['context_institute'].id, today)
+-            # flag_length, length_error_data = prov_length(request_context['context_institute'].id, today)
+-
+             persons_list_id = []
+             persons_2_valid_list_id = []
+             persons_not_else_valid_list_id = []
++            related_office_cache = {}
+             for p_d in p_group_list:
+                 p_general_code_office_list=[]
+                 for p in p_group_list[p_d]:
+-                    general_code_office_list=[p['office__general_code__id']]
+-                    p_general_code_office_list.append(p['office__general_code__id'])
++                    office_code_id = p['office__general_code__id']
++                    general_code_office_list=[office_code_id]
++                    p_general_code_office_list.append(office_code_id)
+                     # возьмем все смежные должности
+-                    related_office = ASIOU_Dict_Office.objects.filter(group_office=p['office__general_code__id'])
+-                    for ro in related_office:
+-                        general_code_office_list.append(ro.id)
+-                        p_general_code_office_list.append(ro.id)
++                    if office_code_id not in related_office_cache:
++                        related_office = [ro['id'] for ro in ASIOU_Dict_Office.objects.filter(group_office=office_code_id).values('id')]
++                        related_office_cache[office_code_id] = related_office
++                    general_code_office_list += related_office_cache[office_code_id]
++                    p_general_code_office_list += related_office_cache[office_code_id]
+                         
+                     if ASIOU_PE_Validation.objects.filter(Q(person=p['person']),
+                                                           Q(general_code_office__in = general_code_office_list),
+@@ -182,9 +181,10 @@
+             resp_dict['bd_error_data'] = bd_error_data
+ 
+             # ПРОВЕРКА НА СТАЖ
+-            flag_length, length_error_data = prov_length(request_context['context_institute'].id, today)
++            # NOTE: Нигде дальше не используется, но СУБД мозг вынесет знатно.
++            # flag_length, length_error_data = prov_length(request_context['context_institute'].id, today)
+ 
+-            resp_dict['length_error_data'] = length_error_data
++            resp_dict['length_error_data'] = []#length_error_data
+ 
+         if request_context['role'] and request_context['role'].pk == ROLE_OOU_TEACHER:
+             pe_group = ASIOU_PE_Group.objects.filter(Q(start_date__lte = today),
+--- a/asiou/common/prov_data.py
++++ b/asiou/common/prov_data.py
+@@ -383,57 +383,26 @@
+
+     snils_dict = {}
+     for p_vals in snils_params_vals:
+-        str_snils = ''
+-        l_snils=p_vals['value_text'].split('-')
+-        for i_s  in l_snils :
+-            str_snils=str_snils+i_s
+-        l_snils=str_snils.split(' ')
+-        str_snils = ''
+-        for i_s  in l_snils :
+-            str_snils=str_snils+i_s
+-
+-        if str_snils == '' :
+-            continue
+-        if str_snils not in snils_dict:
+-            snils_dict[str_snils] = []
+-
+-        snils_dict[str_snils].append([p_vals['record_id'],0])
++        str_snils = p_vals['value_text'].replace('-', '').replace(' ', '')
++        if str_snils != '':
++            if str_snils not in snils_dict:
++                snils_dict[str_snils] = []
++            snils_dict[str_snils].append([p_vals['record_id'],0])
+
+     snils_dict_b = {}
+     for p_vals in snils_params_b_vals:
+-        str_snils = ''
+-        l_snils=p_vals['value_text'].split('-')
+-        for i_s  in l_snils :
+-            str_snils=str_snils+i_s
+-        l_snils=str_snils.split(' ')
+-        str_snils = ''
+-        for i_s  in l_snils :
+-            str_snils=str_snils+i_s
+-
+-        if str_snils == '' :
+-            continue
+-
+-        if str_snils not in snils_dict_b:
+-            snils_dict_b[str_snils] = []
++        str_snils = p_vals['value_text'].replace('-', '').replace(' ', '')
++        if str_snils != '':
++            if str_snils not in snils_dict_b:
++                snils_dict_b[str_snils] = []
+             snils_dict_b[str_snils].append([p_vals['record_id'],0])
+
+-
+     for p_vals in snils_c_params_vals:
+-        str_snils = ''
+-        l_snils=p_vals['value_text'].split('-')
+-        for i_s  in l_snils :
+-            str_snils=str_snils+i_s
+-        l_snils=str_snils.split(' ')
+-        str_snils = ''
+-        for i_s  in l_snils :
+-            str_snils=str_snils+i_s
+-
+-        if str_snils == '':
+-            continue
+-
+-        if str_snils in snils_dict_b:
+-            #snils_dict[str_snils] = []
+-            snils_dict_b[str_snils].append([0,p_vals['record_id']])
++        str_snils = p_vals['value_text'].replace('-', '').replace(' ', '')
++        if str_snils != '':
++            if str_snils in snils_dict_b:
++                #snils_dict[str_snils] = []
++                snils_dict_b[str_snils].append([0,p_vals['record_id']])
+
+
+     snils_error_data={}
+@@ -529,41 +499,27 @@
+     request_year = today.year
+     if today.month in range(1, 10):
+         request_year -= 1
+-    d_id = ASIOU_PE_DocumMember.objects.filter(Q(group__education_year=request_year)).values('person_id')
+-    pup_id = group_by(ASIOU_PE_Person.objects.filter(id__in=d_id, institute=institute_id).exclude(type__label__in=['work', 'pres']).values('id', 'type__label', 'birth_date', 'name', 'surname', 'patronymic', 'sex'), 'type__label')
+-    work_id = ASIOU_PE_Person.objects.filter(out=0, type__label='work')
++    bdate_max_age5 = today - (date(6, 1, 1) - date(1, 1, 1))
++    bdate_max_age6 = today - (date(7, 1, 1) - date(1, 1, 1))
++    bdate_max_age14 = today - (date(15, 1, 1) - date(1, 1, 1))
++    bdate_max_age18 = today - (date(19, 1, 1) - date(1, 1, 1))
+     bd_error_data = defaultdict(list)
+     # ПРОВЕРКА НА ВОЗРАСТ РАБОТНИКОВ
+-    for worker in work_id:
+-        try:
+-            if today - worker.birth_date < date(19, 1, 1) - date(1, 1, 1):
+-                label = worker.type.label
+-                bd_error_data[label].append(worker)
+-        except:
+-            pass
++    workers = ASIOU_PE_Person.objects.filter(out=0, type__label='work', birth_date__gt=bdate_max_age18).all()
++    if len(workers) > 0:
++        bd_error_data['work'] = workers
+     # ПРОВЕРКА НА ВОЗРАСТ ОБУЧАЮЩИХСЯ
+-    for label in pup_id:
+-        try:
+-            for p in pup_id[label]:
+-                if label == 'pup':
+-                    if today - p['birth_date'] < date(7, 1, 1) - date(1, 1, 1):
+-                        bd_error_data[label].append(p)
+-                if label == 'stud':
+-                    if today - p['birth_date'] < date(15, 1, 1) - date(1, 1, 1):
+-                        bd_error_data[label].append(p)
+-                if label == 'exp':
+-                    if today - p['birth_date'] < date(6, 1, 1) - date(1, 1, 1):
+-                        bd_error_data[label].append(p)
+-        except:
+-            pass
++    d_id = ASIOU_PE_DocumMember.objects.filter(Q(group__education_year=request_year)).values('person_id')
++    for (label, max_bdate) in [('exp', bdate_max_age5),
++                               ('pup', bdate_max_age6),
++                               ('stud', bdate_max_age14)]:
++       persons = ASIOU_PE_Person.objects.filter(id__in=d_id, institute=institute_id, type__label=label, birth_date__gt=max_bdate).all()
++       if len(persons) > 0:
++           bd_error_data[label] = persons
+     # ПРОВЕРКА НА ПОЛ ОБУЧАЮЩИХСЯ
+-    for label in pup_id:
+-        try:
+-            for p in pup_id[label]:
+-                if p['sex'] == 3:
+-                    bd_error_data['sex'].append(p)
+-        except:
+-            pass
++    persons = ASIOU_PE_Person.objects.filter(id__in=d_id, institute=institute_id, type__label=label, sex=3).all()
++    if len(persons) > 0:
++        bd_error_data['sex'] = persons
+ 
+     if len(bd_error_data) == 0:
+         return True, []

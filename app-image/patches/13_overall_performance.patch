@@ -1,0 +1,47 @@
+--- a/asiou/properties/forms.py
++++ b/asiou/properties/forms.py
+@@ -26,20 +26,34 @@
+
+         if len(params):
+             init_params = []
++            init_params_all = {}
++            # Если это не объект ASIOU_P_Params, пропустим
++            params = filter(lambda p: p.__class__.__name__ == 'ASIOU_P_Params', params)
++            # Начальные данные
++            if init_object != None:
++                object_class = init_object.__class__.__name__
++                init_params_all = asiou.common.util.group_by(ASIOU_P_ParamValues.objects.filter(
++                    param__in=params,
++                    group_id=self.group.pk,
++                    record_id=init_object.id,
++                    object=object_class
++                ), 'param', True)
+
+             for param in params:
+-                # Если это не объект ASIOU_P_Params, пропустим
+-                if param.__class__.__name__ != 'ASIOU_P_Params': continue
+-
+                 # Начальные данные
+                 if init_object != None:
+-                    object_class = init_object.__class__.__name__
+-                    init_params = ASIOU_P_ParamValues.objects.filter(
+-                        param=param,
+-                        group_id=self.group.pk,
+-                        record_id=init_object.id,
+-                        object=object_class
+-                    )
++                    # init_params = init_params_all[param]
++                    if param in init_params_all:
++                        init_params = init_params_all[param]
++                    else:
++                        init_params = []
++                    # object_class = init_object.__class__.__name__
++                    # init_params = ASIOU_P_ParamValues.objects.filter(
++                    #     param=param,
++                    #     group_id=self.group.pk,
++                    #     record_id=init_object.id,
++                    #     object=object_class
++                    # )
+
+                 # Сохраним в свойство параметры по именам меток
+                 self.params_by_name[param.label] = param

@@ -1,0 +1,39 @@
+--- a/asiou/settings.py
++++ b/asiou/settings.py
+@@ -61,6 +61,8 @@
+ # system time zone.
+ TIME_ZONE = 'Europe/Moscow'
+
++INTERNAL_IPS = ['127.0.0.1']
++
+ # Language code for this installation. All choices can be found here:
+ # http://www.i18nguy.com/unicode/language-identifiers.html
+ LANGUAGE_CODE = 'ru-ru'
+@@ -182,6 +184,7 @@
+ # )
+
+ MIDDLEWARE_CLASSES = (
++    'debug_toolbar.middleware.DebugToolbarMiddleware',
+     'django.middleware.common.CommonMiddleware',
+     'django.contrib.sessions.middleware.SessionMiddleware',
+     'django.middleware.csrf.CsrfViewMiddleware',
+@@ -234,6 +237,7 @@
+     'django.contrib.admin',
+     # Uncomment the next line to enable admin documentation:
+     'django.contrib.admindocs',
++    'debug_toolbar',
+     # Base, for templatetags
+     'asiou',
+     # Accounts
+--- a/asiou/urls.py
++++ b/asiou/urls.py
+@@ -162,7 +162,9 @@
+
+ # For built-in server in debug mode
+ if settings.DEBUG:
++    import debug_toolbar
+     urlpatterns += [
++                        url('__debug__/', include(debug_toolbar.urls)),
+                         url(r'^static/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+                         url(r'^static_new/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
+                     ]

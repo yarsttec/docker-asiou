@@ -1,17 +1,17 @@
---- a/asiou/settings.py
-+++ b/asiou/settings.py
-@@ -220,7 +220,7 @@
-             'level': 'DEBUG',
-             'class': 'logging.handlers.RotatingFileHandler',
-             'formatter': 'default',
--            'filename': 'cont_export.log',
-+            'filename': 'log/cont_export.log',
-             'maxBytes': 1048576,
-             'backupCount': 5
-         }
+# --- a/asiou/settings.py
+# +++ b/asiou/settings.py
+# @@ -220,7 +220,7 @@
+#              'level': 'DEBUG',
+#              'class': 'logging.handlers.RotatingFileHandler',
+#              'formatter': 'default',
+# -            'filename': 'cont_export.log',
+# +            'filename': 'log/cont_export.log',
+#              'maxBytes': 1048576,
+#              'backupCount': 5
+#          }
 --- a/asiou/common/util.py
 +++ b/asiou/common/util.py
-@@ -2968,7 +2968,7 @@
+@@ -2976,7 +2976,7 @@
 
  # Инициализация базы данных
  def initdb(line_by_line=False):
@@ -20,7 +20,7 @@
      if not (os.path.exists(APP_INITDB_DIR) and os.path.isdir(APP_INITDB_DIR)):
          print "Directory '%s' not found!" % APP_INITDB_DIR
      else:
-@@ -3015,7 +3015,7 @@
+@@ -3023,7 +3023,7 @@
  def updatedb(line_by_line=False, excver=''):
      from asiou.models import ASIOU_DBVer
 

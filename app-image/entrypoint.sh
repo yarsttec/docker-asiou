@@ -1,37 +1,23 @@
 #!/bin/bash
 set -e
 
-export MYSQL_PWD="$DATABASE_PASSWORD"
-get_mysql_cmd() {
-  echo "/usr/bin/mysql -h $DATABASE_HOST -P $DATABASE_PORT -D $DATABASE_NAME \
-        -u $DATABASE_USER -e"
-}
-
-get_db_version() {
-  $(get_mysql_cmd) \
-  'SELECT `version` FROM `asiou_db_version` ORDER BY `version` DESC LIMIT 1;' \
-  --skip-column-names --vertical \
-  | tail -n 1 | head -c 8
-}
-
-clear_expired_sessions() {
-  $(get_mysql_cmd) \
-  'DELETE FROM `django_session` WHERE `expire_date` < (DATE_SUB(NOW(), INTERVAL 1 DAY));'
-}
+. $HOME/asiou/scripts/utils.sh
 
 prepare_asiou_db_configs() {
   get_db_version > "$WWW_HOME/asiou/db.version"
 }
 
+prepare_rid_export_cron() {
+  if [ ! -z "$ASIOU_RID_EXPORT_CRON" ]; then
+    echo "$ASIOU_RID_EXPORT_CRON www-data $WWW_HOME/scripts/rid-export.sh" > /etc/cron.d/asiou-rid-export
+  fi
+}
+
 start_asiou() {
+  prepare_rid_export_cron
   prepare_asiou_db_configs
   clear_expired_sessions
   exec supervisord -c /etc/supervisord.conf
-}
-
-run_script() {
-  local name="$1"
-  "$WWW_HOME/scripts/${name}.sh"
 }
 
 run_database_update() {
@@ -46,6 +32,11 @@ run_backup() {
 run_restore() {
   local file_name="$1"
   "$WWW_HOME/scripts/restore.sh" "$file_name"
+}
+
+run_shell() {
+  prepare_asiou_db_configs
+  exec /bin/bash
 }
 
 #=========================
@@ -80,6 +71,13 @@ case "$1" in
     ;;
   "cont-export-diff")
     run_script "cont-export-diff"
+    ;;
+  "shell")
+    run_shell
+    ;;
+  "update_and_start")
+    run_database_update
+    start_asiou
     ;;
 
   *)
