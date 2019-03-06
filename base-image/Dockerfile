@@ -9,6 +9,7 @@ RUN set -ex; \
       openssl \
       ca-certificates \
       wget \
+      less \
       zip \
       unzip \
       cron \
@@ -38,6 +39,7 @@ RUN set -ex; \
     # Prepare Apache
     rm -rf /etc/apache2/sites-enabled/* \
            /etc/apache2/sites-available/* \
+           /etc/apache2/conf-enabled/* \
            /var/log/apache2/*; \
     chown -R www-data: /var/log/apache2 \
                        /var/run/apache2 \
@@ -110,7 +112,8 @@ RUN set -ex; \
     ln -s /usr/local/lib/python2.7/dist-packages/django/contrib/admin/static/admin \
           ${WWW_HOME}/media; \
     ln -s ../sites-available/django-asiou.conf \
-          /etc/apache2/sites-enabled/django-asiou.conf
+          /etc/apache2/sites-enabled/django-asiou.conf; \
+    echo "export APACHE_LOG_DIR=${LOG_DIR}" >> /etc/apache2/envvars
 
 ARG BUILD_DATE
 LABEL asiou.base-build-date=${BUILD_DATE}

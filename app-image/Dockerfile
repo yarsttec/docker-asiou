@@ -33,7 +33,7 @@ LABEL asiou.version=${ASIOU_VERSION} \
       asiou.build-date=${BUILD_DATE}
 
 HEALTHCHECK --interval=1m --timeout=10s \
-    CMD [ $(wget -O/dev/null --max-redirect=0 http://127.0.0.1:8080/ 2>&1 | grep '302 FOUND' | wc -l) -eq 1 ] || exit 1
+    CMD [ $(wget -O/dev/null --max-redirect=0 http://127.0.0.1:8080/ 2>&1 | grep -i '302 Found' | wc -l) -eq 1 ] || exit 1
 
 # Prepare directories
 RUN set -ex; \
