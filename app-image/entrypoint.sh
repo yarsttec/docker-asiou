@@ -75,6 +75,10 @@ case "$1" in
   "shell")
     run_shell
     ;;
+  "update_and_start")
+    run_database_update
+    start_asiou
+    ;;
 
   *)
     start_asiou
