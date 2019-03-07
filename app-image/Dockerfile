@@ -46,6 +46,7 @@ RUN set -ex; \
 VOLUME /srv/asiou/log
 VOLUME /srv/asiou/temp
 VOLUME /srv/backup
+VOLUME /srv/cache/nginx
 
 EXPOSE 8080
 ENTRYPOINT ["/entrypoint.sh"]

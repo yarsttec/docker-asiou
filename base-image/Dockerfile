@@ -33,9 +33,11 @@ RUN set -ex; \
     rm -f /etc/crontab; \
     # Nginx directories
     mkdir -p /var/lib/nginx/logs \
-             /var/run/nginx; \
+             /var/run/nginx \
+             /srv/cache/nginx; \
     chown -R www-data: /var/lib/nginx \
-                       /var/run/nginx; \
+                       /var/run/nginx \
+                       /srv/cache/nginx; \
     # Prepare Apache
     rm -rf /etc/apache2/sites-enabled/* \
            /etc/apache2/sites-available/* \
