@@ -26,7 +26,8 @@ RUN set -ex; \
 ENV ASIOU_DOMAIN= \
     ASIOU_HTTPS_ONLY=false \
     DEBUG_ASIOU=false \
-    DEBUG_SQL=false
+    DEBUG_SQL=false \
+    TMPDIR=$TEMP_DIR
 
 ARG BUILD_DATE
 LABEL asiou.version=${ASIOU_VERSION} \
