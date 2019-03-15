@@ -32,7 +32,7 @@ RUN set -ex; \
     ; \
     rm -f /etc/crontab; \
     # Nginx directories
-    mkdir -p /var/lib/nginx/logs \
+    mkdir -p /var/lib/nginx/{body,logs,proxy} \
              /var/run/nginx \
              /srv/cache/nginx; \
     chown -R www-data: /var/lib/nginx \
