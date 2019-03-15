@@ -121,6 +121,15 @@ docker run -itd --name asiou --restart=unless-stopped \
 где `172.17.0.1` адрес сервера БД.
 Список возможных переменных окружения для настройки контейнера с АСИОУ см. ниже.
 
+Вероятно, удобнее будет запускать обновление сразу при старте контейнера, для
+это нужно добавить аргумент `update_and_start` к команде запуска:
+```
+docker run -itd --name asiou --restart=unless-stopped \
+    -e DATABASE_HOST=172.17.0.1 \
+    -e DATABASE_PASSWORD=AsiouPassword \
+    -p80:8080 yarsttec/asiou update_and_start
+```
+
 
 # Сборка образа
 
