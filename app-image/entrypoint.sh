@@ -9,7 +9,10 @@ prepare_asiou_db_configs() {
 
 prepare_rid_export_cron() {
   if [ ! -z "$ASIOU_RID_EXPORT_CRON" ]; then
-    echo "$ASIOU_RID_EXPORT_CRON www-data $WWW_HOME/scripts/rid-export.sh" > /etc/cron.d/asiou-rid-export
+    local profile="$WWW_HOME/.profile"
+    env | grep -v 'CRON' | grep -v '_=' | sed -e 's/^/export /' > $profile
+    chown www-data: $profile; chmod 400 $profile
+    echo "$ASIOU_RID_EXPORT_CRON www-data . $profile; $WWW_HOME/scripts/rid-export.sh" > /etc/cron.d/asiou-rid-export
   fi
 }
 

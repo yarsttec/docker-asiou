@@ -157,7 +157,7 @@ docker run -itd --name asiou --restart=unless-stopped \
 - `DJANGO_SECRET_KEY`, сикретный ключ для Django, как гласит документация,
   им ни с кем нельзя делиться.
 - `ASIOU_RID_EXPORT_CRON`, строка расписания формата cron, например,
-  `"<минуты> <часы> * * *"`.
+  `"<минуты> <часы> * * *"` (время по UTC, -3 часа от MSK).
 
 
 # Обновление
