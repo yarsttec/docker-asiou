@@ -1,13 +1,13 @@
 --- a/asiou/settings.py
 +++ b/asiou/settings.py
 @@ -3,6 +3,7 @@
+ import os.path
  import platform
  import zipfile
- from ConfigParser import RawConfigParser
 +import os
-
- # Django settings for ASIOU project.
- DEBUG = True
+ from ConfigParser import RawConfigParser
+ import mimetypes
+ mimetypes.add_type("text/css", ".css", True)
 @@ -36,14 +37,16 @@
  if os.path.exists(app_ini) and os.path.isfile(app_ini):
      app_conf.read(app_ini)

@@ -3,10 +3,15 @@ set -ex
 
 URL="http://asiou.coikko.ru/static/update_version/www${ASIOU_VERSION}.zip"
 
-DISTR_FILE=$(mktemp --suffix .zip)
-DISTR_DIR=$(mktemp -d)
+if [ "$CACHE_DISTR_FILE" = "yes" ]; then
+  DISTR_FILE=/tmp/asiou.zip
+  [ ! -f "$DISTR_FILE" ] && wget -qO"$DISTR_FILE" "$URL"
+else
+  DISTR_FILE=$(mktemp --suffix .zip)
+  wget -qO"$DISTR_FILE" "$URL"
+fi
 
-wget -qO"$DISTR_FILE" "$URL"
+DISTR_DIR=$(mktemp -d)
 unzip -q "$DISTR_FILE" -d "$DISTR_DIR" \
   '*/manage.py' \
   '*/asiou/**.py' \
@@ -50,5 +55,5 @@ cp -r ./* "${WWW_HOME}/"
 
 # Clean temporary files
 popd
-rm -f "$DISTR_FILE"
+[ "$CACHE_DISTR_FILE" = "yes" ] || rm -f "$DISTR_FILE"
 rm -rf "$DISTR_DIR"
