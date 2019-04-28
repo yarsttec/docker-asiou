@@ -1,6 +1,6 @@
 --- a/asiou/export_rhd/utils.py
 +++ b/asiou/export_rhd/utils.py
-@@ -72,6 +72,21 @@
+@@ -72,6 +72,22 @@
      'asiou_i_types',
      'asiou_rhd_export',
  ]
@@ -18,6 +18,7 @@
 +    'soap_api_',
 +    'djcelery_',
 +    'djkombu_',
++    'asiou_pk_',
 +]
 
 
@@ -31,7 +32,7 @@
      dbname = connections.databases['default']['NAME']
 
      gia_participants = ASIOU_GIA_Participant.objects.filter()
-@@ -134,40 +149,9 @@
+@@ -134,42 +151,9 @@
          # tables = connection.introspection.get_table_list(cursor=cursor)
 
          # Массив не выгружаемых таблиц
@@ -64,6 +65,8 @@
 -                f=1
 -            if t.startswith('djkombu_'):
 -                f=1
+-            if t.startswith('asiou_pk_'):
+-                f=1
 -
 -            if f==1 :
 -                table2.append(t)
@@ -75,7 +78,7 @@
 
 
      # Массив заменяемых доп.параметров
-@@ -214,7 +199,7 @@
+@@ -214,7 +200,7 @@
                      writer.writerow([col[0] for col in desc_table])
 
                      # Содержимое таблицы
@@ -84,7 +87,7 @@
                          i = 0
                          k = 0
                          k1 = 0
-@@ -396,29 +381,31 @@
+@@ -396,29 +382,31 @@
                      # messages.error(request, u'Error: %s' % e)
                      csvfile.close()
 
@@ -136,9 +139,9 @@
 
      # Возьмем версию БД и дату сборки если есть
      dbver = 0
-@@ -435,4 +422,14 @@
-     # Имя архива
-     zipfile_name = 'exp-v%s-%s-%s.zip' % (dbver, ou_id, datetime.now().strftime('%y%m%d-%H%M'))
+@@ -445,4 +433,14 @@
+     else:
+         zipfile_name = 'exp-v%s-%s-%s.zip' % (d_v, ou_id, datetime.now().strftime('%y%m%d-%H%M'))
 
 +    # Для сжатия больших объёмов данных используем подходящий инструмент
 +    from subprocess import check_call
@@ -153,9 +156,9 @@
      return zipfile_name, s
 --- a/asiou/reports/views.py
 +++ b/asiou/reports/views.py
-@@ -976,6 +976,7 @@
+@@ -985,6 +985,7 @@
      # Захватываем ZIP из памяти и отдаем его
-     resp_dict = HttpResponse(s.getvalue(), content_type = "application/x-zip-compressed")
+     resp_dict = HttpResponse(s.getvalue(), content_type="application/x-zip-compressed")
      resp_dict['Content-Disposition'] = 'attachment; filename=%s' % zipfile_name
 +    resp_dict['X-Accel-Redirect'] = '/temp-download/%s' % zipfile_name
 

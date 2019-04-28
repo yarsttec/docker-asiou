@@ -1,6 +1,6 @@
 --- a/asiou/ajax/views.py
 +++ b/asiou/ajax/views.py
-@@ -3361,6 +3361,7 @@
+@@ -3391,6 +3391,7 @@
      :param request:
      :return: HttpResponse()
      """
