@@ -48,43 +48,43 @@
              pe_group = ASIOU_PE_Group.objects.filter(Q(start_date__lte = today),
 --- a/asiou/common/prov_data.py
 +++ b/asiou/common/prov_data.py
-@@ -383,57 +383,26 @@
+@@ -395,59 +395,28 @@
 
      snils_dict = {}
      for p_vals in snils_params_vals:
 -        str_snils = ''
--        l_snils=p_vals['value_text'].split('-')
--        for i_s  in l_snils :
--            str_snils=str_snils+i_s
--        l_snils=str_snils.split(' ')
+-        l_snils = p_vals['value_text'].split('-')
+-        for i_s in l_snils:
+-            str_snils = str_snils + i_s
+-        l_snils = str_snils.split(' ')
 -        str_snils = ''
--        for i_s  in l_snils :
--            str_snils=str_snils+i_s
+-        for i_s in l_snils:
+-            str_snils = str_snils + i_s
 -
--        if str_snils == '' :
+-        if str_snils == '':
 -            continue
 -        if str_snils not in snils_dict:
 -            snils_dict[str_snils] = []
 -
--        snils_dict[str_snils].append([p_vals['record_id'],0])
+-        snils_dict[str_snils].append([p_vals['record_id'], 0])
 +        str_snils = p_vals['value_text'].replace('-', '').replace(' ', '')
 +        if str_snils != '':
 +            if str_snils not in snils_dict:
 +                snils_dict[str_snils] = []
-+            snils_dict[str_snils].append([p_vals['record_id'],0])
++            snils_dict[str_snils].append([p_vals['record_id'], 0])
 
      snils_dict_b = {}
      for p_vals in snils_params_b_vals:
 -        str_snils = ''
--        l_snils=p_vals['value_text'].split('-')
--        for i_s  in l_snils :
--            str_snils=str_snils+i_s
--        l_snils=str_snils.split(' ')
+-        l_snils = p_vals['value_text'].split('-')
+-        for i_s in l_snils:
+-            str_snils = str_snils + i_s
+-        l_snils = str_snils.split(' ')
 -        str_snils = ''
--        for i_s  in l_snils :
--            str_snils=str_snils+i_s
+-        for i_s in l_snils:
+-            str_snils = str_snils + i_s
 -
--        if str_snils == '' :
+-        if str_snils == '':
 -            continue
 -
 -        if str_snils not in snils_dict_b:
@@ -93,34 +93,41 @@
 +        if str_snils != '':
 +            if str_snils not in snils_dict_b:
 +                snils_dict_b[str_snils] = []
-             snils_dict_b[str_snils].append([p_vals['record_id'],0])
+             snils_dict_b[str_snils].append([p_vals['record_id'], 0])
 
--
+     snils_dict_c = {}
      for p_vals in snils_c_params_vals:
 -        str_snils = ''
--        l_snils=p_vals['value_text'].split('-')
--        for i_s  in l_snils :
--            str_snils=str_snils+i_s
--        l_snils=str_snils.split(' ')
+-        l_snils = p_vals['value_text'].split('-')
+-        for i_s in l_snils:
+-            str_snils = str_snils + i_s
+-        l_snils = str_snils.split(' ')
 -        str_snils = ''
--        for i_s  in l_snils :
--            str_snils=str_snils+i_s
--
+-        for i_s in l_snils:
+-            str_snils = str_snils + i_s
+-        # print 'f', str_snils
 -        if str_snils == '':
 -            continue
 -
 -        if str_snils in snils_dict_b:
--            #snils_dict[str_snils] = []
--            snils_dict_b[str_snils].append([0,p_vals['record_id']])
+-            # snils_dict[str_snils] = []
+-            snils_dict_b[str_snils].append([0, p_vals['record_id']])
+-
+-        if str_snils not in snils_dict_c:
+-            snils_dict_c[str_snils] = []
+-        snils_dict_c[str_snils].append([p_vals['record_id'], 0])
 +        str_snils = p_vals['value_text'].replace('-', '').replace(' ', '')
 +        if str_snils != '':
 +            if str_snils in snils_dict_b:
-+                #snils_dict[str_snils] = []
-+                snils_dict_b[str_snils].append([0,p_vals['record_id']])
++                # snils_dict[str_snils] = []
++                snils_dict_b[str_snils].append([0, p_vals['record_id']])
++            if str_snils not in snils_dict_c:
++                snils_dict_c[str_snils] = []
++            snils_dict_c[str_snils].append([p_vals['record_id'], 0])
 
 
      snils_error_data={}
-@@ -529,41 +499,27 @@
+@@ -613,44 +583,30 @@
      request_year = today.year
      if today.month in range(1, 10):
          request_year -= 1
@@ -132,6 +139,7 @@
 +    bdate_max_age14 = today - (date(15, 1, 1) - date(1, 1, 1))
 +    bdate_max_age18 = today - (date(19, 1, 1) - date(1, 1, 1))
      bd_error_data = defaultdict(list)
+
      # ПРОВЕРКА НА ВОЗРАСТ РАБОТНИКОВ
 -    for worker in work_id:
 -        try:
@@ -143,6 +151,7 @@
 +    workers = ASIOU_PE_Person.objects.filter(out=0, type__label='work', birth_date__gt=bdate_max_age18).all()
 +    if len(workers) > 0:
 +        bd_error_data['work'] = workers
+
      # ПРОВЕРКА НА ВОЗРАСТ ОБУЧАЮЩИХСЯ
 -    for label in pup_id:
 -        try:
@@ -165,6 +174,7 @@
 +       persons = ASIOU_PE_Person.objects.filter(id__in=d_id, institute=institute_id, type__label=label, birth_date__gt=max_bdate).all()
 +       if len(persons) > 0:
 +           bd_error_data[label] = persons
+
      # ПРОВЕРКА НА ПОЛ ОБУЧАЮЩИХСЯ
 -    for label in pup_id:
 -        try:
