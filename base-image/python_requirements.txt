@@ -1,7 +1,7 @@
 celery==3.1.25
 cffi~=1.12.0
 cryptography~=2.6.0
-django-celery~=3.1.17
+django-celery~=3.2.2
 django-ipware~=2.1.0
 django-kombu~=0.9.4
 django-markup-deprecated~=0.0.3
