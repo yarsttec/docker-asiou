@@ -48,7 +48,7 @@
              pe_group = ASIOU_PE_Group.objects.filter(Q(start_date__lte = today),
 --- a/asiou/common/prov_data.py
 +++ b/asiou/common/prov_data.py
-@@ -395,59 +395,28 @@
+@@ -399,58 +399,28 @@
 
      snils_dict = {}
      for p_vals in snils_params_vals:
@@ -105,7 +105,6 @@
 -        str_snils = ''
 -        for i_s in l_snils:
 -            str_snils = str_snils + i_s
--        # print 'f', str_snils
 -        if str_snils == '':
 -            continue
 -
@@ -125,8 +124,8 @@
 +                snils_dict_c[str_snils] = []
 +            snils_dict_c[str_snils].append([p_vals['record_id'], 0])
 
-
      snils_error_data={}
+     snils_error_data_c = {}
 @@ -613,44 +583,30 @@
      request_year = today.year
      if today.month in range(1, 10):

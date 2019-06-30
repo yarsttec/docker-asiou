@@ -17,10 +17,10 @@ print_error() {
 
 print_message "Running '$DATABASE_NAME' database restore from file '$restore_file'"
 
-cd "$HOME" || print_error "You should mount restore directory '$HOME'!"
+cd "$HOME" || print_error "You should mount the restore directory '$HOME'!"
 
-[! -f "$PRIV"] && print_error "Private key '$PRIV' not found!"
-[! -f "$restore_file"] && print_error "Backup file '$restore_file' not found!"
+[ ! -f "$PRIV" ] && print_error "Private key '$PRIV' not found!"
+[ ! -f "$restore_file" ] && print_error "Backup file '$restore_file' not found!"
 
 file_prefix="backup_asiou_db"
 
@@ -53,9 +53,9 @@ print_message "Decrypting data..."
 openssl enc -d \
         -aes-256-cbc \
         -in "$restore_file_data_enc" \
-        -pass file:"$restore_file_key" | \
-  bzip2 -dc > "$restore_file_data" || \
-      print_error "Cannot decrypt data!"
+        -pass file:"$restore_file_key" \
+  | bzip2 -dc > "$restore_file_data" \
+      || print_error "Cannot decrypt data!"
 
 rm -f "$restore_file_key_enc" \
       "$restore_file_key" \

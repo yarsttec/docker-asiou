@@ -70,10 +70,10 @@
 предполагается, что он уже есть и работает. Существует Docker под
 платформу Windows, но всё же рекомендуется работать на Linux-системе.
 
-Данный образ запускает Nginx, Redis и Django. Nginx обрабатывает
+Данный образ запускает Nginx, Apache, Redis и Django. Nginx обрабатывает
 HTTP-запросы на порту 8080, статические файлы отдаёт с диска, остальные запросы
-проксирует через FastCGI на Django. Ожидается, что база данных будет
-запущена за пределами образа.
+проксирует через Apache в Django. Ожидается, что база данных будет
+запущена за пределами образа. Redis используется для кэширования запросов к БД.
 
 ## Пример запуска БД
 
@@ -90,17 +90,15 @@ HTTP-запросы на порту 8080, статические файлы от
   ```
   docker run -d --name mysql --restart=unless-stopped \
     -e MYSQL_ROOT_PASSWORD=PaSwOrD \
+    -e MYSQL_DATABASE=asiou \
+    -e MYSQL_USER=asiou \
+    -e MYSQL_PASSWORD=AsiouPassword \
     -v <DATADIR>/mysql:/var/lib/mysql \
-    -p 3306:3306 mysql:5.7
+    -p 3306:3306 \
+    mysql:5.7
   ```
   Где `<DATADIR>` - директория на хосте для хранения БД, чтобы при перезапуске
   данные не потерялись.
-
-- Далее нужно создать базу данных и пользоватя для АСИОУ:
-  ```
-  docker exec -it mysql mysql -u root -pPaSwOrD \
-    -e "CREATE DATABASE asiou; GRANT ALL PRIVILEGES ON asiou.* TO 'asiou'@'%' IDENTIFIED BY 'AsiouPassword';"
-  ```
 
 Выше приведён очень простой и небезопасный, пример запуска, так как порт
 базы дынных будет доступен снаружи, рекомендуется использовать приватные
@@ -116,7 +114,8 @@ HTTP-запросы на порту 8080, статические файлы от
 docker run -itd --name asiou --restart=unless-stopped \
   -e DATABASE_HOST=172.17.0.1 \
   -e DATABASE_PASSWORD=AsiouPassword \
-  -p80:8080 yarsttec/asiou
+  -p 80:8080 \
+  yarsttec/asiou
 ```
 где `172.17.0.1` адрес сервера БД.
 Список возможных переменных окружения для настройки контейнера с АСИОУ см. ниже.
@@ -127,7 +126,8 @@ docker run -itd --name asiou --restart=unless-stopped \
 docker run -itd --name asiou --restart=unless-stopped \
   -e DATABASE_HOST=172.17.0.1 \
   -e DATABASE_PASSWORD=AsiouPassword \
-  -p80:8080 yarsttec/asiou update_and_start
+  -p 80:8080 \
+  yarsttec/asiou update_and_start
 ```
 
 
@@ -162,17 +162,28 @@ docker run -itd --name asiou --restart=unless-stopped \
 
 # Обновление
 
-Для проверки доступности новой версии образа можно выполнить команду:
+Перед обновлением на новую версию, как это и сказано в официальных документах,
+желательно сделать бэкап базы данных, потому-что некоторые изенмения при
+обновлении могут быть необратимы простыми способами.
+
+Также лучше сохранить старый образ контейнера (дав ему другую метку), например:
+```
+docker image tag yarsttec/asiou:latest yarsttec/asiou:previous
+```
+
+Теперь скачаем новую версию образа с помощью команды:
 ```
 docker pull yarsttec/asiou
 ```
-Если появился текст `Downloaded newer image for`, значит была загружена
-новая версия.
-Теперь необходимо завершить текущий контейнер:
+Если ничего не было скачено и появилась надпись `Image is up to date`, то
+новой версии ещё не появилось.
+
+Далее необходимо завершить текущий контейнер:
 ```
 docker stop asiou && docker rm asiou
 ```
-Затем запустить обновление БД (команда аналогична команде запуска):
+Затем запустить обновление БД (если для запуска не используется параметр
+`update_and_start`, в таком случае можно просто запустить):
 ```
 docker run -it --rm \
   -e DATABASE_HOST=172.17.0.1 \
@@ -181,6 +192,21 @@ docker run -it --rm \
 ```
 и снова запустить рабочий контейнер на свежей версии образа.
 
+Чтобы увидеть ход обновления можно посмотреть логи контейнера:
+```
+docker logs --follow asiou
+```
+
+## Восстановление на предыдущий образ контейнера
+
+Чтобы сделать откат на предыдущий образ (например, если новый не работает),
+нужно либо в команде запуска контейнера указать предыдущий образ
+(`yarsttec/asiou:previous`), либо откатить основную метку образа обратно:
+```
+docker image tag yarsttec/asiou:previous yarsttec/asiou:latest
+```
+
+Затем завершить и удалить текущий контейнер, и запустить заново.
 
 ## Миграция с 7.5.9
 
@@ -300,7 +326,8 @@ docker exec -it asiou /bin/bash
 docker run -it --rm \
   -e DATABASE_HOST=172.17.0.1 \
   -e DATABASE_PASSWORD=AsiouPassword \
-  -p80:8080 yarsttec/asiou shell
+  -p 80:8080 \
+  yarsttec/asiou shell
 ```
 
 

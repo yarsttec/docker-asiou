@@ -10,7 +10,7 @@ print_message "Running '$DATABASE_NAME' database backup"
 HOME="/srv/backup"
 PUB="asiou_backup_public_key.pem"
 
-cd "$HOME" || (echo "You should mount backup directory '$HOME'!" 1>&2; exit 1)
+cd "$HOME" || (echo "You should mount the backup directory '$HOME'!" 1>&2; exit 1)
 
 info_file="info.txt"
 file_prefix="backup_asiou_db"
@@ -24,7 +24,7 @@ backup_file_data_enc="${file_prefix}.sql.bz2.enc"
 # Generate a random password.
 print_message "Generating a random password..."
 /usr/bin/openssl rand -base64 -out "$backup_file_key" 256
-rm ".rnd" || :
+rm -f ".rnd" || :
 
 export MYSQL_PWD="$DATABASE_PASSWORD"
 ( \
@@ -33,14 +33,14 @@ export MYSQL_PWD="$DATABASE_PASSWORD"
   echo "key: rsa"; \
 )> "$info_file"
 
-# Make dump, compress and encode it.
+# Make the database dump, compress and encode it.
 print_message "Making the database dump..."
 /usr/bin/mysqldump \
     --routines \
     -h "$DATABASE_HOST" -P "$DATABASE_PORT" -u "$DATABASE_USER" \
-    "$DATABASE_NAME" | \
-  bzip2 -c | \
-  /usr/bin/openssl enc -e \
+    "$DATABASE_NAME" \
+  | bzip2 -c \
+  | /usr/bin/openssl enc -e \
     -aes-256-cbc \
     -salt \
     -out "$backup_file_data_enc" \
@@ -50,15 +50,15 @@ print_message "Making the database dump..."
 # printf "\x01" | dd of="$backup_file_data_enc" bs=1 seek=100 count=1 conv=notrunc
 # echo "123" >> "$backup_file_data_enc"
 # truncate -s 10000000 "$backup_file_data_enc"
-print_message "Verifying an archive..."
+print_message "Verifying the dump archive..."
 res=$( (openssl enc -d \
-        -aes-256-cbc \
-        -in "$backup_file_data_enc" \
-        -pass file:"$backup_file_key" 2>&3 | \
-    bzip2 -t) 3>&1)
-if [ ! -z "$res" ]; then
+          -aes-256-cbc \
+          -in "$backup_file_data_enc" \
+          -pass file:"$backup_file_key" 2>&3 \
+    | bzip2 -t) 3>&1)
+if [ -n "$res" ]; then
   echo "$res" 1>&2
-  echo "Failed to verify the archive!" 1>&2
+  echo "Failed to verify the dump archive!" 1>&2
   exit 1
 fi
 
@@ -79,7 +79,7 @@ print_message "Generating digests..."
 sha256sum "$backup_file_key_enc" "$backup_file_data_enc" > "${file_prefix}.sha256"
 md5sum    "$backup_file_key_enc" "$backup_file_data_enc" > "${file_prefix}.md5"
 
-# Pack everything in a single container.
+# Pack everything into a single container.
 print_message "Packing everything into one file..."
 tar -c -f "$archive_file" \
   "$info_file" \
