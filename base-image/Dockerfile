@@ -12,6 +12,7 @@ RUN set -ex; \
       less \
       zip \
       unzip \
+      nano \
       cron \
       dos2unix \
       patch \
@@ -49,8 +50,8 @@ RUN set -ex; \
                        /var/run/apache2 \
                        /var/lock/apache2; \
     # Prepare Python
-    python -m pip install --upgrade "pip~=18.1"; \
-    pip2 install --no-cache-dir "setuptools~=40.6.3"; \
+    python -m pip install --upgrade "pip~=19.1"; \
+    pip2 install --no-cache-dir "setuptools~=41.0.1"; \
     # Clean
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*; \

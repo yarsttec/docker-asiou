@@ -19,3 +19,5 @@ patch -p 1 -i patches/12_fix_index_page_performance.patch
 patch -p 1 -i patches/13_overall_performance.patch
 
 #patch -p 1 -i patches/00_enable_debug.patch
+
+find . -name \*.orig -delete
