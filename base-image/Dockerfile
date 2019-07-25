@@ -49,6 +49,7 @@ RUN set -ex; \
     chown -R www-data: /var/log/apache2 \
                        /var/run/apache2 \
                        /var/lock/apache2; \
+    a2dismod -f autoindex deflate dir filter status; \
     # Prepare Python
     python -m pip install --upgrade "pip~=19.1"; \
     pip2 install --no-cache-dir "setuptools~=41.0.1"; \
