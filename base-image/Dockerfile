@@ -98,9 +98,8 @@ ENV HOME=/srv \
     WWW_HOME=/srv/asiou \
     RUN_DIR=/srv/asiou/run \
     LOG_DIR=/srv/asiou/log \
-    TEMP_DIR=/srv/asiou/temp
-
-ENV DATABASE_HOST=127.0.0.1 \
+    TEMP_DIR=/srv/asiou/temp \
+    DATABASE_HOST=127.0.0.1 \
     DATABASE_PORT=3306 \
     DATABASE_NAME=asiou \
     DATABASE_USER=asiou \
@@ -108,10 +107,7 @@ ENV DATABASE_HOST=127.0.0.1 \
 
 # Prepare
 
-COPY nginx /etc/nginx/
-COPY apache2 /etc/apache2/
-COPY redis /etc/redis/
-COPY supervisord.conf /etc/supervisord.conf
+COPY etc/ /etc/
 
 RUN set -ex; \
     mkdir -p ${HOME} ${WWW_HOME}; \

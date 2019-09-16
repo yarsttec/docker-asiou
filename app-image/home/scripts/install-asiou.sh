@@ -16,6 +16,7 @@ unzip -q "$DISTR_FILE" -d "$DISTR_DIR" \
   '*/manage.py' \
   '*/asiou/**.py' \
   '*/asiou/soap_api/cert/*' \
+  '*/asiou/**.zip' \
   '*/static/*' \
   '*/static_new/*' \
   '*/sql/django_migrations.sql' \
