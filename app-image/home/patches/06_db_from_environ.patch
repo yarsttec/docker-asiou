@@ -1,6 +1,6 @@
 --- a/asiou/settings.py
 +++ b/asiou/settings.py
-@@ -3,6 +3,7 @@
+@@ -6,6 +6,7 @@
  import os.path
  import platform
  import zipfile
@@ -8,9 +8,9 @@
  from ConfigParser import RawConfigParser
  import mimetypes
  mimetypes.add_type("text/css", ".css", True)
-@@ -36,14 +37,16 @@
- if os.path.exists(app_ini) and os.path.isfile(app_ini):
-     app_conf.read(app_ini)
+@@ -41,14 +42,16 @@
+ # максимальное число параметров, которое может быть получено через GET и POST (выставлено большое)
+ DATA_UPLOAD_MAX_NUMBER_FIELDS = 20480
 
 +db_param = lambda name: os.environ.get(name) or dbconf.get('database', name)
 +

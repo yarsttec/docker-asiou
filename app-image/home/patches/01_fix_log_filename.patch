@@ -11,7 +11,7 @@
 #          }
 --- a/asiou/common/util.py
 +++ b/asiou/common/util.py
-@@ -3020,7 +3020,7 @@
+@@ -3031,7 +3031,7 @@
 
  # Инициализация базы данных
  def initdb(line_by_line=False):
@@ -20,7 +20,7 @@
      if not (os.path.exists(APP_INITDB_DIR) and os.path.isdir(APP_INITDB_DIR)):
          print "Directory '%s' not found!" % APP_INITDB_DIR
      else:
-@@ -3067,7 +3067,7 @@
+@@ -3078,7 +3078,7 @@
  def updatedb(line_by_line=False, excver=''):
      from asiou.models import ASIOU_DBVer
 

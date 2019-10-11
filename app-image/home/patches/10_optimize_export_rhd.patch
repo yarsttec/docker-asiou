@@ -1,6 +1,6 @@
 --- a/asiou/export_rhd/utils.py
 +++ b/asiou/export_rhd/utils.py
-@@ -72,6 +72,22 @@
+@@ -73,6 +73,22 @@
      'asiou_i_types',
      'asiou_rhd_export',
  ]
@@ -22,8 +22,8 @@
 +]
 
 
-
-@@ -104,7 +119,7 @@
+ # Формирование архива для выгрузки в РБД
+@@ -105,7 +121,7 @@
      # quality_calculate
 
      # Установим курсор
@@ -32,7 +32,7 @@
      dbname = connections.databases['default']['NAME']
 
      gia_participants = ASIOU_GIA_Participant.objects.filter()
-@@ -134,42 +151,9 @@
+@@ -142,42 +158,9 @@
          # tables = connection.introspection.get_table_list(cursor=cursor)
 
          # Массив не выгружаемых таблиц
@@ -77,8 +77,8 @@
 +        table2 += UNLOAD_TABLE
 
 
-     # Массив заменяемых доп.параметров
-@@ -214,7 +200,7 @@
+     # Массив заменяемых доп.параметров 180, 204,181, 179,
+@@ -224,7 +207,7 @@
                      writer.writerow([col[0] for col in desc_table])
 
                      # Содержимое таблицы
@@ -87,7 +87,7 @@
                          i = 0
                          k = 0
                          k1 = 0
-@@ -396,29 +382,31 @@
+@@ -406,29 +389,31 @@
                      # messages.error(request, u'Error: %s' % e)
                      csvfile.close()
 
@@ -139,7 +139,7 @@
 
      # Возьмем версию БД и дату сборки если есть
      dbver = 0
-@@ -445,4 +433,14 @@
+@@ -448,4 +433,14 @@
      else:
          zipfile_name = 'exp-v%s-%s-%s.zip' % (d_v, ou_id, datetime.now().strftime('%y%m%d-%H%M'))
 
@@ -156,7 +156,7 @@
      return zipfile_name, s
 --- a/asiou/reports/views.py
 +++ b/asiou/reports/views.py
-@@ -985,6 +985,7 @@
+@@ -990,6 +990,7 @@
      # Захватываем ZIP из памяти и отдаем его
      resp_dict = HttpResponse(s.getvalue(), content_type="application/x-zip-compressed")
      resp_dict['Content-Disposition'] = 'attachment; filename=%s' % zipfile_name
