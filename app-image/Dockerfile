@@ -3,6 +3,7 @@ FROM yarsttec/asiou:7.6-base
 # Prepare
 COPY home/ ${WWW_HOME}/
 COPY entrypoint.sh /entrypoint.sh
+# hadolint ignore=SC2086
 RUN set -ex; \
     chmod +x $WWW_HOME/scripts/*.sh \
              $WWW_HOME/patches/*.sh \
@@ -14,7 +15,7 @@ RUN set -ex; \
     chown -R www-data: "$RUN_DIR" "$LOG_DIR" "$TEMP_DIR"; \
     chmod -R g+w "$LOG_DIR"
 
-ENV ASIOU_DOMAIN= \
+ENV ASIOU_DOMAIN="" \
     ASIOU_HTTPS_ONLY=false \
     DEBUG_ASIOU=false \
     DEBUG_SQL=false \
@@ -37,14 +38,14 @@ ENTRYPOINT ["/entrypoint.sh"]
 ENV ASIOU_VERSION=7.6.1
 RUN set -ex; \
     # Download and install
-    $WWW_HOME/scripts/install-asiou.sh; \
-    ln -s asiou/wsgi.py $WWW_HOME/wsgi.py; \
+    "$WWW_HOME/scripts/install-asiou.sh"; \
+    ln -s asiou/wsgi.py "$WWW_HOME/wsgi.py"; \
     # Apply patches
-    $WWW_HOME/patches/00_patch.sh; \
+    "$WWW_HOME/patches/00_patch.sh"; \
     ln -s /usr/local/lib/python2.7/dist-packages/debug_toolbar/static/debug_toolbar \
-          ${WWW_HOME}/static_new/debug_toolbar; \
+          "$WWW_HOME/static_new/debug_toolbar"; \
     # Optimize distribution
-    $WWW_HOME/scripts/optimize-dist.sh
+    "$WWW_HOME/scripts/optimize-dist.sh"
 
 ARG BUILD_DATE
 LABEL asiou.version=${ASIOU_VERSION} \

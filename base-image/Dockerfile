@@ -6,30 +6,30 @@ RUN set -ex; \
     export DEBIAN_FRONTEND=noninteractive; \
     apt-get update; \
     apt-get install --no-install-recommends -y \
-      openssl \
-      ca-certificates \
-      wget \
-      less \
-      zip \
-      unzip \
-      nano \
-      cron \
-      dos2unix \
-      patch \
-      libmysqlclient20 \
-      mysql-client \
-      python2.7 \
-      python-pip \
-      libxml2 \
-      libxslt1.1 \
-      nginx-light \
-      redis \
-      telnet \
-      optipng \
+      openssl=1.1.1* \
+      ca-certificates=* \
+      wget=1.19.4* \
+      less=* \
+      zip=3.0* \
+      unzip=6.0* \
+      nano=* \
+      cron=3.0pl1* \
+      dos2unix=7.3.4* \
+      patch=2.7.6* \
+      libmysqlclient20=5.7.27* \
+      mysql-client=5.7.27* \
+      python2.7=2.7.15* \
+      python-pip=9.0.1-2.3* \
+      libxml2=2.9.4* \
+      libxslt1.1=1.1.29* \
+      nginx-light=1.14.0* \
+      redis=5:4.0.9* \
+      telnet=0.17* \
+      optipng=0.7.6* \
       # NOTE: try Nginx Unit instead of Apache
       # https://unit.nginx.org/howto/django/
-      apache2 \
-      libapache2-mod-wsgi \
+      apache2=2.4.29* \
+      libapache2-mod-wsgi=4.5.17* \
     ; \
     rm -f /etc/crontab; \
     # Nginx directories
@@ -61,15 +61,16 @@ RUN set -ex; \
 
 # Install python packages required by ASIOU
 COPY python_requirements.txt /tmp/requirements.txt
+# hadolint ignore=DL3013
 RUN set -ex; \
     export DEBIAN_FRONTEND=noninteractive; \
     apt-get update; \
     # Install packages for building
     apt-get install --no-install-recommends -y \
-      build-essential \
-      libmysqlclient-dev \
-      python2.7-dev \
-      libssl-dev \
+      build-essential=* \
+      libmysqlclient-dev=5.7.27* \
+      python2.7-dev=2.7.15* \
+      libssl-dev=1.1.1* \
     ; \
     pip2 install --no-cache-dir -r /tmp/requirements.txt; \
     pip2 install --upgrade --no-cache-dir \
