@@ -1,6 +1,6 @@
 --- a/asiou/export_rhd/utils.py
 +++ b/asiou/export_rhd/utils.py
-@@ -73,6 +73,22 @@
+@@ -73,6 +73,23 @@
      'asiou_i_types',
      'asiou_rhd_export',
  ]
@@ -19,11 +19,12 @@
 +    'djcelery_',
 +    'djkombu_',
 +    'asiou_pk_',
++    'asiou_db_version',
 +]
 
 
  # Формирование архива для выгрузки в РБД
-@@ -105,7 +121,7 @@
+@@ -105,7 +122,7 @@
      # quality_calculate
 
      # Установим курсор
@@ -32,7 +33,7 @@
      dbname = connections.databases['default']['NAME']
 
      gia_participants = ASIOU_GIA_Participant.objects.filter()
-@@ -142,42 +158,9 @@
+@@ -142,44 +159,9 @@
          # tables = connection.introspection.get_table_list(cursor=cursor)
 
          # Массив не выгружаемых таблиц
@@ -67,6 +68,8 @@
 -                f=1
 -            if t.startswith('asiou_pk_'):
 -                f=1
+-            if t.startswith('asiou_db_version'):
+-                f=1
 -
 -            if f==1 :
 -                table2.append(t)
@@ -78,16 +81,16 @@
 
 
      # Массив заменяемых доп.параметров 180, 204,181, 179,
-@@ -224,7 +207,7 @@
+@@ -226,7 +208,7 @@
                      writer.writerow([col[0] for col in desc_table])
 
                      # Содержимое таблицы
 -                    for row in cursor.fetchall():
 +                    for row in cursor:
+                         f_add=1
                          i = 0
                          k = 0
-                         k1 = 0
-@@ -406,29 +389,31 @@
+@@ -442,29 +424,11 @@
                      # messages.error(request, u'Error: %s' % e)
                      csvfile.close()
 
@@ -109,37 +112,17 @@
 -        #     messages.error(request, u'Error: %s' % e)
 -
 -    # Добавим в список файлов, файл с текущей версией БД
--    zf.write(settings.APP_DBVER_FILE, os.path.basename(settings.APP_DBVER_FILE))
+-    # zf.write(settings.APP_DBVER_FILE, os.path.basename(settings.APP_DBVER_FILE))
 -    if type_rep == 'rep':
 -        fpath = os.path.join(os.path.dirname(settings.APP_DBVER_FILE), 'options.ini')
 -        zf.write(fpath, os.path.basename(fpath))
 -
 -    # Закрываем архив
 -    zf.close()
-+    # # Объект архива
-+    # zf = zipfile.ZipFile(s, 'w', settings.APP_ZIP_COMPRESS)
-+    # for filename in filenames:
-+    #     # try:
-+    #         # Путь до файла во временной папке
-+    #         fpath = os.path.join(settings.APP_RID_EXPORT_DIR, filename)
-+    #
-+    #         # Добавляем файл по заданному пути
-+    #         zf.write(fpath, filenam.e)
-+    #     # except Exception as e:
-+    #     #     messages.error(request, u'Error: %s' % e)
-+    #
-+    # # Добавим в список файлов, файл с текущей версией БД
-+    # zf.write(settings.APP_DBVER_FILE, os.path.basename(settings.APP_DBVER_FILE))
-+    # if type_rep == 'rep':
-+    #     fpath = os.path.join(os.path.dirname(settings.APP_DBVER_FILE), 'options.ini')
-+    #     zf.write(fpath, os.path.basename(fpath))
-+    #
-+    # # Закрываем архив
-+    # zf.close()
 
      # Возьмем версию БД и дату сборки если есть
-     dbver = 0
-@@ -448,4 +433,14 @@
+
+@@ -484,4 +448,14 @@
      else:
          zipfile_name = 'exp-v%s-%s-%s.zip' % (d_v, ou_id, datetime.now().strftime('%y%m%d-%H%M'))
 
@@ -156,7 +139,7 @@
      return zipfile_name, s
 --- a/asiou/reports/views.py
 +++ b/asiou/reports/views.py
-@@ -990,6 +990,7 @@
+@@ -992,6 +992,7 @@
      # Захватываем ZIP из памяти и отдаем его
      resp_dict = HttpResponse(s.getvalue(), content_type="application/x-zip-compressed")
      resp_dict['Content-Disposition'] = 'attachment; filename=%s' % zipfile_name

@@ -28,7 +28,7 @@
                                                            Q(general_code_office__in=general_code_office_list),
 --- a/asiou/common/prov_data.py
 +++ b/asiou/common/prov_data.py
-@@ -1340,58 +1340,28 @@
+@@ -1568,58 +1568,28 @@
 
      snils_dict = {}
      for p_vals in snils_params_vals:
@@ -106,7 +106,7 @@
 
      snils_error_data = {}
      snils_error_data_c = {}
-@@ -1590,44 +1560,30 @@
+@@ -1819,44 +1789,30 @@
      request_year = today.year
      if today.month in range(1, 10):
          request_year -= 1
