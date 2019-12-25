@@ -16,9 +16,9 @@ RUN set -ex; \
       cron=3.0pl1* \
       dos2unix=7.3.4* \
       patch=2.7.6* \
-      libmysqlclient20=5.7.27* \
-      mysql-client=5.7.27* \
-      python2.7=2.7.15* \
+      libmysqlclient20=5.7.* \
+      mysql-client=5.7.* \
+      python2.7=2.7.* \
       python-pip=9.0.1-2.3* \
       libxml2=2.9.4* \
       libxslt1.1=1.1.29* \
@@ -51,8 +51,8 @@ RUN set -ex; \
                        /var/lock/apache2; \
     a2dismod -f autoindex deflate dir filter status; \
     # Prepare Python
-    python -m pip install --upgrade "pip~=19.1"; \
-    pip2 install --no-cache-dir "setuptools~=41.0.1"; \
+    python -m pip install --upgrade "pip==19.3.1"; \
+    pip2 install --no-cache-dir "setuptools==42.0.2"; \
     # Clean
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*; \
@@ -68,8 +68,8 @@ RUN set -ex; \
     # Install packages for building
     apt-get install --no-install-recommends -y \
       build-essential=* \
-      libmysqlclient-dev=5.7.27* \
-      python2.7-dev=2.7.15* \
+      libmysqlclient-dev=5.7.* \
+      python2.7-dev=2.7.* \
       libssl-dev=1.1.1* \
     ; \
     pip2 install --no-cache-dir -r /tmp/requirements.txt; \
@@ -77,8 +77,8 @@ RUN set -ex; \
       https://github.com/sokolovs/django-piston/archive/master.tar.gz; \
     # Additional packages
     pip2 install --no-cache-dir \
-      "supervisor~=3.0" \
-      "django-cacheops~=4.1" \
+      "supervisor==4.1.0" \
+      "django-cacheops~=4.2" \
       "django-debug-toolbar~=1.11" \
     ; \
     # Clean
