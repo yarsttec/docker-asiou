@@ -95,7 +95,9 @@ RUN set -ex; \
     rm -rf /tmp/*
 
 
-ENV HOME=/srv \
+ENV LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    HOME=/srv \
     WWW_HOME=/srv/asiou \
     RUN_DIR=/srv/asiou/run \
     LOG_DIR=/srv/asiou/log \
