@@ -51,8 +51,8 @@ RUN set -ex; \
                        /var/lock/apache2; \
     a2dismod -f autoindex deflate dir filter status; \
     # Prepare Python
-    python -m pip install --upgrade "pip==19.3.1"; \
-    pip2 install --no-cache-dir "setuptools==42.0.2"; \
+    python -m pip install --upgrade "pip==20.1.1"; \
+    pip2 install --no-cache-dir "setuptools==44.1.1"; \
     # Clean
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*; \
@@ -77,9 +77,9 @@ RUN set -ex; \
       https://github.com/sokolovs/django-piston/archive/master.tar.gz; \
     # Additional packages
     pip2 install --no-cache-dir \
-      "supervisor==4.1.0" \
-      "django-cacheops~=4.2" \
-      "django-debug-toolbar~=1.11" \
+      "supervisor==4.2.0" \
+      "django-cacheops==4.2" \
+      "django-debug-toolbar==1.11" \
     ; \
     # Clean
     apt-get remove --purge -y \
