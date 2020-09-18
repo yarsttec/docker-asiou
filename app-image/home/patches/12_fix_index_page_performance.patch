@@ -28,7 +28,7 @@
                                                            Q(general_code_office__in=general_code_office_list),
 --- a/asiou/common/prov_data.py
 +++ b/asiou/common/prov_data.py
-@@ -1568,58 +1568,28 @@
+@@ -1667,58 +1667,28 @@
 
      snils_dict = {}
      for p_vals in snils_params_vals:
