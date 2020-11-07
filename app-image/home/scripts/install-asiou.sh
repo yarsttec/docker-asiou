@@ -1,7 +1,7 @@
 #!/bin/bash
 set -ex
 
-URL="http://asiou.coikko.ru/static/update_version/www${ASIOU_VERSION}.zip"
+URL="http://asiou.coikko.ru/static/upd_vers/www${ASIOU_VERSION}.zip"
 
 if [ "$CACHE_DISTR_FILE" = "yes" ]; then
   DISTR_FILE=/tmp/asiou.zip
@@ -21,10 +21,7 @@ unzip -q "$DISTR_FILE" -d "$DISTR_DIR" \
   '*/static_new/*' \
   '*/sql/django_migrations.sql' \
   '*/sql/init_structure.sql' \
-  '*/sql/updatedb/**' \
-  '*/tpls/*' \
-  -x \
-  '*/sql/updatedb/201[234567]**'
+  '*/tpls/*'
 
 pushd $DISTR_DIR/www*
 
