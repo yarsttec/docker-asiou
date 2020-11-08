@@ -35,7 +35,7 @@ ENTRYPOINT ["/entrypoint.sh"]
 #
 # Install ASIOU distribution
 #
-ENV ASIOU_VERSION=7.6.1
+ENV ASIOU_VERSION=7.6.2
 RUN set -ex; \
     # Download and install
     "$WWW_HOME/scripts/install-asiou.sh"; \
