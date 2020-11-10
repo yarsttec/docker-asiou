@@ -60,7 +60,7 @@ RUN set -ex; \
     rm -rf /tmp/*
 
 # Install python packages required by ASIOU
-COPY python_requirements.txt /tmp/requirements.txt
+COPY python_requirements.txt swagger-client.zip /tmp/
 # hadolint ignore=DL3013
 RUN set -ex; \
     export DEBIAN_FRONTEND=noninteractive; \
@@ -72,7 +72,7 @@ RUN set -ex; \
       python2.7-dev=2.7.* \
       libssl-dev=1.1.1* \
     ; \
-    pip2 install --no-cache-dir -r /tmp/requirements.txt; \
+    pip2 install --no-cache-dir -r /tmp/python_requirements.txt; \
     pip2 install --upgrade --no-cache-dir \
       https://github.com/sokolovs/django-piston/archive/master.tar.gz; \
     # Additional packages
