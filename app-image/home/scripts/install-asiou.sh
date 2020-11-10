@@ -16,6 +16,7 @@ unzip -q "$DISTR_FILE" -d "$DISTR_DIR" \
   '*/manage.py' \
   '*/asiou/**.py' \
   '*/asiou/soap_api/cert/*' \
+  '*/asiou/claim/*' \
   '*/asiou/**.zip' \
   '*/static/*' \
   '*/static_new/*' \
