@@ -1,5 +1,5 @@
-# --- a/asiou/export_rhd/utils.py
-# +++ b/asiou/export_rhd/utils.py
+--- a/asiou/export_rhd/utils.py
++++ b/asiou/export_rhd/utils.py
 # @@ -75,6 +75,23 @@
 #      'asiou_i_types',
 #      'asiou_rhd_export',
@@ -88,7 +88,7 @@
 -                    for row in cursor.fetchall():
 +                    for row in cursor:
 
-                         f_add=1
+                         f_add = 1
                          i = 0
 @@ -440,29 +422,11 @@
                      # messages.error(request, u'Error: %s' % e)

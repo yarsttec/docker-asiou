@@ -4,8 +4,11 @@
 #   -v ${PWD}:/mnt \
 #   -v ${PWD}/tmp:/srv/asiou/asiou \
 #   yarsttec/asiou:7.6-base /bin/bash
+#
+# root@:/# /mnt/debug-build.sh
+#
 
-# rm -rf /srv/asiou/asiou/*
+rm -rf /srv/asiou/asiou/*
 
 mkdir -p ${WWW_HOME}/{asiou,scripts,patches}
 cp -r /mnt/home/* ${WWW_HOME}/
