@@ -1,13 +1,15 @@
 --- a/asiou/settings.py
 +++ b/asiou/settings.py
-@@ -59,6 +59,10 @@
-     }
+@@ -61,9 +61,9 @@
  }
-
+ 
+ 
+-# import MySQLdb.cursors as MySQLCursors
+-# DATABASES['for_reports'] = DATABASES['default'].copy()
+-# DATABASES['for_reports']['OPTIONS'] = {'cursorclass': MySQLCursors.SSCursor}
 +import MySQLdb.cursors as MySQLCursors
 +DATABASES['for_reports'] = DATABASES['default'].copy()
 +DATABASES['for_reports']['OPTIONS'] = {'cursorclass': MySQLCursors.SSCursor}
-+
+ 
  # User profile module
  AUTH_PROFILE_MODULE = 'asiou.accounts.models.ASIOU_U_UserProfile'
- 

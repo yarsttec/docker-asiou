@@ -1,99 +1,29 @@
 --- a/asiou/export_rhd/utils.py
 +++ b/asiou/export_rhd/utils.py
-# @@ -75,6 +75,23 @@
-#      'asiou_i_types',
-#      'asiou_rhd_export',
-#  ]
-# +UNLOAD_TABLE_PREFIXES = [
-# +    'asiou_claim',
-# +    'asiou_dict',
-# +    'asiou_d_',
-# +    'asiou_k_',
-# +    'asiou_douq',
-# +    'asiou_u_user_',
-# +    'audit',
-# +    'auth_',
-# +    'celery_',
-# +    'django_',
-# +    'soap_api_',
-# +    'djcelery_',
-# +    'djkombu_',
-# +    'asiou_pk_',
-# +    'asiou_db_version',
-# +]
-# 
-# 
-#  # Формирование архива для выгрузки в РБД
-@@ -108,7 +125,7 @@
+@@ -109,8 +109,7 @@
      # quality_calculate
 
      # Установим курсор
 -    cursor = connection.cursor()
+-    # cursor = connections['for_reports'].cursor()
 +    cursor = connections['for_reports'].cursor()
      dbname = connections.databases['default']['NAME']
 
      gia_participants = ASIOU_GIA_Participant.objects.filter()
-# @@ -145,44 +162,9 @@
-#          # tables = connection.introspection.get_table_list(cursor=cursor)
-# 
-#          # Массив не выгружаемых таблиц
-# -        table2 = UNLOAD_TABLE
-# -        for t in tables:
-# -            f=0
-# -            if t.startswith('asiou_claim'):
-# -                f=1
-# -            if t.startswith('asiou_dict'):
-# -                f=1
-# -            if t.startswith('asiou_d_'):
-# -                f=1
-# -            if t.startswith('asiou_k_'):
-# -                f=1
-# -            if t.startswith('asiou_douq'):
-# -                f=1
-# -            if t.startswith('asiou_u_user_'):
-# -                f=1
-# -            if t.startswith('audit'):
-# -                f=1
-# -            if t.startswith('auth_'):
-# -                f=1
-# -            if t.startswith('celery_'):
-# -                f=1
-# -            if t.startswith('django_'):
-# -                f=1
-# -            if t.startswith('soap_api_'):
-# -                f=1
-# -            if t.startswith('djcelery_'):
-# -                f=1
-# -            if t.startswith('djkombu_'):
-# -                f=1
-# -            if t.startswith('asiou_pk_'):
-# -                f=1
-# -            if t.startswith('asiou_db_version'):
-# -                f=1
-# -
-# -            if f==1 :
-# -                table2.append(t)
-# -
-# -
-# +        table2 = [t for t in tables
-# +                  if len([p for p in UNLOAD_TABLE_PREFIXES if t.startswith(p)]) > 0]
-# +        table2 += UNLOAD_TABLE
-# 
-# 
-#      # Массив заменяемых доп.параметров 180, 204,181, 179,
-@@ -229,7 +211,7 @@
+@@ -236,8 +235,7 @@
                      writer.writerow([col[0] for col in desc_table])
 
                      # Содержимое таблицы
--                    for row in cursor.fetchall():
+-                    # for row in cursor:
 +                    for row in cursor:
+-                    for row in cursor.fetchall():
 
                          f_add = 1
                          i = 0
-@@ -440,29 +422,11 @@
+@@ -419,29 +417,10 @@
                      # messages.error(request, u'Error: %s' % e)
                      csvfile.close()
-
+-    # cursor.close()
 +    cursor.close()
 +
      # Открываем StringIO, чтобы захватить в памяти содержимое ZIP
@@ -122,7 +52,7 @@
 
      # Возьмем версию БД и дату сборки если есть
 
-@@ -482,4 +446,14 @@
+@@ -461,4 +440,14 @@
      else:
          zipfile_name = 'exp-v%s-%s-%s.zip' % (d_v, ou_id, datetime.now().strftime('%y%m%d-%H%M'))
 

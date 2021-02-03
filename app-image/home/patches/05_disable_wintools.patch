@@ -1,6 +1,6 @@
 --- a/asiou/settings.py
 +++ b/asiou/settings.py
-@@ -716,7 +716,7 @@
+@@ -730,7 +730,7 @@
          raise Exception('Необходимо настроить slave-сервер в db.ini')
  else:
      CELERY_IMPORTS = ('asiou.export_rhd.tasks',)

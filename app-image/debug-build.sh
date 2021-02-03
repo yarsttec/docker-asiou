@@ -5,7 +5,7 @@
 #   -v ${PWD}/tmp:/srv/asiou/asiou \
 #   yarsttec/asiou:7.6-base /bin/bash
 #
-# root@:/# /mnt/debug-build.sh
+# root@:/# rm -rf /srv/asiou/asiou/* && /mnt/debug-build.sh
 #
 
 rm -rf /srv/asiou/asiou/*

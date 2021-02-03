@@ -51,7 +51,8 @@ RUN set -ex; \
                        /var/lock/apache2; \
     a2dismod -f autoindex deflate dir filter status; \
     # Prepare Python
-    python -m pip install --upgrade "pip==20.1.1"; \
+    # NOTE: pip>=21 and setuptools>=45 require Python 3.5+
+    python -m pip install --upgrade "pip==20.3.4"; \
     pip2 install --no-cache-dir "setuptools==44.1.1"; \
     # Clean
     apt-get clean; \
