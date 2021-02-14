@@ -75,7 +75,7 @@ RUN set -ex; \
     ; \
     pip2 install --no-cache-dir -r /tmp/python_requirements.txt; \
     pip2 install --upgrade --no-cache-dir \
-      https://github.com/sokolovs/django-piston/archive/master.tar.gz; \
+      https://github.com/sokolovs/django-piston/archive/7390a802788f3332ca84eb7f8aee6bfa36b3be55.tar.gz; \
     # Additional packages
     pip2 install --no-cache-dir \
       "supervisor==4.2.0" \

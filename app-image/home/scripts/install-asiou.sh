@@ -28,10 +28,6 @@ pushd $DISTR_DIR/www*
 
 # Clean garbage
 find ./ -name "Thumbs.db" -delete
-find ./ -name "views?*.py" -delete
-find ./ ! -name "utils.py" -a  -name "util?*.py" -delete
-find ./ -name "urls?*.py" -delete
-find ./ -name "models?*.py" -delete
 rm -rf \
   ./asiou/common/r_functions{1,2}.py \
   ./asiou/management/commands/edit_pe_docum_member1.py \
