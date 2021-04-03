@@ -10,17 +10,17 @@
      dbname = connections.databases['default']['NAME']
 
      gia_participants = ASIOU_GIA_Participant.objects.filter()
-@@ -236,8 +235,7 @@
+@@ -248,8 +247,7 @@
                      writer.writerow([col[0] for col in desc_table])
 
                      # Содержимое таблицы
 -                    # for row in cursor:
 +                    for row in cursor:
 -                    for row in cursor.fetchall():
-
                          f_add = 1
                          i = 0
-@@ -419,29 +417,10 @@
+                         k = 0
+@@ -439,29 +437,10 @@
                      # messages.error(request, u'Error: %s' % e)
                      csvfile.close()
 -    # cursor.close()
@@ -52,7 +52,7 @@
 
      # Возьмем версию БД и дату сборки если есть
 
-@@ -461,4 +440,14 @@
+@@ -483,4 +462,14 @@
      else:
          zipfile_name = 'exp-v%s-%s-%s.zip' % (d_v, ou_id, datetime.now().strftime('%y%m%d-%H%M'))
 
