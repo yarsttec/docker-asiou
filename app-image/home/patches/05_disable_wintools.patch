@@ -1,11 +1,11 @@
 --- a/asiou/settings.py
 +++ b/asiou/settings.py
-@@ -730,7 +730,7 @@
-         raise Exception('Необходимо настроить slave-сервер в db.ini')
+@@ -659,7 +659,7 @@
+         raise Exception("Необходимо настроить slave-сервер в db.ini")
  else:
-     CELERY_IMPORTS = ('asiou.export_rhd.tasks',)
--    INSTALLED_APPS += ('django_windows_tools',)
-+    # INSTALLED_APPS += ('django_windows_tools',)
-     BROKER_URL = 'django://'
+     CELERY_IMPORTS = ("asiou.export_rhd.tasks",)
+-    INSTALLED_APPS += ("django_windows_tools",)
++    # INSTALLED_APPS += ("django_windows_tools",)
+     BROKER_URL = "django://"
 
- APP_RHD_EXPORT_URL = 'http://asiou.coikko.ru'
+ APP_RHD_EXPORT_URL = "http://asiou.coikko.ru"

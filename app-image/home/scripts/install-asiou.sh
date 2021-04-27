@@ -1,30 +1,28 @@
 #!/bin/bash
 set -ex
 
-URL="http://asiou.coikko.ru/static/upd_vers/www${ASIOU_VERSION}.zip"
+URL="http://asiou.coikko.ru/static/upd_vers/x32/www${ASIOU_VERSION}.zip"
 
 if [ "$CACHE_DISTR_FILE" = "yes" ]; then
-  DISTR_FILE=/tmp/asiou.zip
+  DISTR_FILE="/tmp/asiou.zip"
   [ ! -f "$DISTR_FILE" ] && wget -qO"$DISTR_FILE" "$URL"
 else
-  DISTR_FILE=$(mktemp --suffix .zip)
+  DISTR_FILE="$(mktemp --suffix .zip)"
   wget -qO"$DISTR_FILE" "$URL"
 fi
 
-DISTR_DIR=$(mktemp -d)
+DISTR_DIR="$(mktemp -d)"
 unzip -q "$DISTR_FILE" -d "$DISTR_DIR" \
   '*/manage.py' \
   '*/asiou/**.py' \
-  '*/asiou/soap_api/cert/*' \
   '*/asiou/claim/*' \
   '*/asiou/**.zip' \
   '*/static/*' \
   '*/static_new/*' \
-  '*/sql/django_migrations.sql' \
-  '*/sql/init_structure.sql' \
+  '*/sql/clear_base.sql' \
   '*/tpls/*'
 
-pushd $DISTR_DIR/www*
+pushd "$DISTR_DIR"/www*
 
 # Clean garbage
 find ./ -name "Thumbs.db" -delete

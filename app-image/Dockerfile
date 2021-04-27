@@ -1,4 +1,4 @@
-FROM yarsttec/asiou:7.6-base
+FROM yarsttec/asiou:7.7-base
 
 # Prepare
 COPY home/ ${WWW_HOME}/
@@ -35,14 +35,14 @@ ENTRYPOINT ["/entrypoint.sh"]
 #
 # Install ASIOU distribution
 #
-ENV ASIOU_VERSION=7.6.2
+ENV ASIOU_VERSION=7.7.0
 RUN set -ex; \
     # Download and install
     "$WWW_HOME/scripts/install-asiou.sh"; \
     ln -s asiou/wsgi.py "$WWW_HOME/wsgi.py"; \
     # Apply patches
     "$WWW_HOME/patches/00_patch.sh"; \
-    ln -s /usr/local/lib/python2.7/dist-packages/debug_toolbar/static/debug_toolbar \
+    ln -s /usr/local/lib/python3.6/dist-packages/debug_toolbar/static/debug_toolbar \
           "$WWW_HOME/static_new/debug_toolbar"; \
     # Optimize distribution
     "$WWW_HOME/scripts/optimize-dist.sh"

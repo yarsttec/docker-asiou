@@ -2,32 +2,32 @@
 +++ b/asiou/settings.py
 @@ -6,6 +6,7 @@
  import os.path
- import platform
+ # import platform
  import zipfile
 +import os
- from ConfigParser import RawConfigParser
+ from configparser import RawConfigParser
  import mimetypes
- mimetypes.add_type("text/css", ".css", True)
-@@ -42,14 +43,16 @@
+ 
+@@ -44,14 +45,16 @@
  # максимальное число параметров, которое может быть получено через GET и POST (выставлено большое)
  DATA_UPLOAD_MAX_NUMBER_FIELDS = 20480
 
-+db_param = lambda name: os.environ.get(name) or dbconf.get('database', name)
++db_param = lambda name: os.environ.get(name) or dbconf.get("database", name)
 +
  DATABASES = {
-     'default': {
--        'ENGINE': dbconf.get('database', 'DATABASE_ENGINE'),
--        'HOST': dbconf.get('database', 'DATABASE_HOST'),
--        'NAME': dbconf.get('database', 'DATABASE_NAME'),
--        'USER': dbconf.get('database', 'DATABASE_USER'),
--        'PASSWORD': dbconf.get('database', 'DATABASE_PASSWORD'),
--        'PORT': dbconf.get('database', 'DATABASE_PORT'),
-+        'ENGINE': db_param('DATABASE_ENGINE'),
-+        'HOST': db_param('DATABASE_HOST'),
-+        'NAME': db_param('DATABASE_NAME'),
-+        'USER': db_param('DATABASE_USER'),
-+        'PASSWORD': db_param('DATABASE_PASSWORD'),
-+        'PORT': db_param('DATABASE_PORT'),
-         'CONN_MAX_AGE': 60 * 10,  # 10 minutes
+     "default": {
+-        "ENGINE": dbconf.get("database", "DATABASE_ENGINE"),
+-        "HOST": dbconf.get("database", "DATABASE_HOST"),
+-        "NAME": dbconf.get("database", "DATABASE_NAME"),
+-        "USER": dbconf.get("database", "DATABASE_USER"),
+-        "PASSWORD": dbconf.get("database", "DATABASE_PASSWORD"),
+-        "PORT": dbconf.get("database", "DATABASE_PORT"),
++        "ENGINE": db_param("DATABASE_ENGINE"),
++        "HOST": db_param("DATABASE_HOST"),
++        "NAME": db_param("DATABASE_NAME"),
++        "USER": db_param("DATABASE_USER"),
++        "PASSWORD": db_param("DATABASE_PASSWORD"),
++        "PORT": db_param("DATABASE_PORT"),
+         "CONN_MAX_AGE": 60 * 10,  # 10 minutes
          # 'OPTIONS': {'charset': 'latin1',
          #             'use_unicode': True},
