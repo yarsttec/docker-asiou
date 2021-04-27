@@ -1,11 +1,11 @@
 --- a/asiou/settings.py
 +++ b/asiou/settings.py
-@@ -65,6 +65,9 @@
+@@ -66,6 +66,9 @@
  # User profile module
- AUTH_PROFILE_MODULE = 'asiou.accounts.models.ASIOU_U_UserProfile'
+ AUTH_PROFILE_MODULE = "asiou.accounts.models.ASIOU_U_UserProfile"
 
 +# SQL Cache (Cacheops)
-+from settings_cacheops import *
++from .settings_cacheops import *
 +
  # Local time zone for this installation. Choices can be found here:
  # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -14,7 +14,7 @@
 
  # List of installed apps
  INSTALLED_APPS = [
-+    'cacheops',
-     'piston',
-     'django.contrib.auth',
-     'django.contrib.contenttypes',
++    "cacheops",
+     "django.contrib.auth",
+     "django.contrib.contenttypes",
+     "django.contrib.sessions",

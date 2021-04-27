@@ -1,34 +1,6 @@
---- a/asiou/views.py
-+++ b/asiou/views.py
-@@ -106,16 +106,19 @@
-             persons_list_id = []
-             persons_2_valid_list_id = []
-             persons_not_else_valid_list_id = []
-+            related_office_cache = {}
-             for p_d in p_group_list:
-                 p_general_code_office_list = []
-                 for p in p_group_list[p_d]:
--                    general_code_office_list = [p['office__general_code__id']]
--                    p_general_code_office_list.append(p['office__general_code__id'])
-+                    office_code_id = p['office__general_code__id']
-+                    general_code_office_list = [office_code_id]
-+                    p_general_code_office_list.append(office_code_id)
-                     # возьмем все смежные должности
--                    related_office = ASIOU_Dict_Office.objects.filter(group_office=p['office__general_code__id'])
--                    for ro in related_office:
--                        general_code_office_list.append(ro.id)
--                        p_general_code_office_list.append(ro.id)
-+                    if office_code_id not in related_office_cache:
-+                        related_office = [ro['id'] for ro in ASIOU_Dict_Office.objects.filter(group_office=office_code_id).values('id')]
-+                        related_office_cache[office_code_id] = related_office
-+                    general_code_office_list += related_office_cache[office_code_id]
-+                    p_general_code_office_list += related_office_cache[office_code_id]
- 
-                     if ASIOU_PE_Validation.objects.filter(Q(person=p['person']),
-                                                           Q(general_code_office__in=general_code_office_list),
 --- a/asiou/common/prov_data.py
 +++ b/asiou/common/prov_data.py
-@@ -1667,58 +1667,28 @@
+@@ -2452,58 +2452,28 @@
 
      snils_dict = {}
      for p_vals in snils_params_vals:

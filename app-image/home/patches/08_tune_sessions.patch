@@ -1,14 +1,14 @@
 --- a/asiou/settings.py
 +++ b/asiou/settings.py
-@@ -402,8 +402,10 @@
- AUDIT_IP = '127.0.0.1'
+@@ -337,8 +337,10 @@
+ AUDIT_IP = "127.0.0.1"
 
  # Session expire settings
 -# SESSION_COOKIE_AGE = 1800
 +SESSION_COOKIE_AGE = 2*24*3600
  SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-+SESSION_COOKIE_SECURE = os.environ.get('ASIOU_HTTPS_ONLY') == 'true'
-+SESSION_COOKIE_DOMAIN = os.environ.get('ASIOU_DOMAIN')
++SESSION_COOKIE_SECURE = os.environ.get("ASIOU_HTTPS_ONLY") == "true"
++SESSION_COOKIE_DOMAIN = os.environ.get("ASIOU_DOMAIN")
 
  # XML RPC
- APP_XMLRPC_URL = 'https://%s:%s@my.dnevnik76.ru/xmlrpc/'
+ APP_XMLRPC_URL = "https://{}:{}@my.dnevnik76.ru/xmlrpc/"

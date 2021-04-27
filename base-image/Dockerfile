@@ -18,8 +18,8 @@ RUN set -ex; \
       patch=2.7.6* \
       libmysqlclient20=5.7.* \
       mysql-client=5.7.* \
-      python2.7=2.7.* \
-      python-pip=9.0.1-2.3* \
+      python3.6=3.6.* \
+      python3-pip=9.0.1-2.3* \
       libxml2=2.9.4* \
       libxslt1.1=1.1.29* \
       nginx-light=1.14.0* \
@@ -29,7 +29,7 @@ RUN set -ex; \
       # NOTE: try Nginx Unit instead of Apache
       # https://unit.nginx.org/howto/django/
       apache2=2.4.29* \
-      libapache2-mod-wsgi=4.5.17* \
+      libapache2-mod-wsgi-py3=4.5.17* \
     ; \
     rm -f /etc/crontab; \
     # Nginx directories
@@ -46,14 +46,17 @@ RUN set -ex; \
            /etc/apache2/sites-available/* \
            /etc/apache2/conf-enabled/* \
            /var/log/apache2/*; \
+    mkdir -p /var/log/apache2 \
+             /var/run/apache2 \
+             /var/lock/apache2; \
     chown -R www-data: /var/log/apache2 \
                        /var/run/apache2 \
                        /var/lock/apache2; \
     a2dismod -f autoindex deflate dir filter status; \
     # Prepare Python
-    # NOTE: pip>=21 and setuptools>=45 require Python 3.5+
-    python -m pip install --upgrade "pip==20.3.4"; \
-    pip2 install --no-cache-dir "setuptools==44.1.1"; \
+    update-alternatives --install /usr/bin/python python /usr/bin/python3 10; \
+    python3 -m pip install --upgrade --no-cache-dir "pip==21.0.1"; \
+    pip3 install --no-cache-dir "setuptools==56.0.0"; \
     # Clean
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*; \
@@ -70,15 +73,15 @@ RUN set -ex; \
     apt-get install --no-install-recommends -y \
       build-essential=* \
       libmysqlclient-dev=5.7.* \
-      python2.7-dev=2.7.* \
+      python3.6-dev=3.6.* \
       libssl-dev=1.1.1* \
     ; \
-    pip2 install --no-cache-dir -r /tmp/python_requirements.txt; \
-    pip2 install --upgrade --no-cache-dir \
-      https://github.com/sokolovs/django-piston/archive/7390a802788f3332ca84eb7f8aee6bfa36b3be55.tar.gz; \
+    pip3 install --no-cache-dir -r /tmp/python_requirements.txt; \
+    # pip3 install --upgrade --no-cache-dir \
+    #   https://github.com/sokolovs/django-piston/archive/7390a802788f3332ca84eb7f8aee6bfa36b3be55.tar.gz; \
     # Additional packages
-    pip2 install --no-cache-dir \
-      "supervisor==4.2.0" \
+    pip3 install --no-cache-dir \
+      "supervisor==4.2.2" \
       "django-cacheops==4.2" \
       "django-debug-toolbar==1.11" \
     ; \
@@ -86,7 +89,7 @@ RUN set -ex; \
     apt-get remove --purge -y \
       build-essential \
       libmysqlclient-dev \
-      python2.7-dev \
+      python3.6-dev \
       libssl-dev \
     ; \
     apt-get autoremove --purge -y; \
