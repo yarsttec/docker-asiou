@@ -5,10 +5,10 @@ URL="http://asiou.coikko.ru/static/upd_vers/x32/www${ASIOU_VERSION}.zip"
 
 if [ "$CACHE_DISTR_FILE" = "yes" ]; then
   DISTR_FILE="/tmp/asiou.zip"
-  [ ! -f "$DISTR_FILE" ] && wget -qO"$DISTR_FILE" "$URL"
+  [ ! -f "$DISTR_FILE" ] && wget -O"$DISTR_FILE" "$URL"
 else
   DISTR_FILE="$(mktemp --suffix .zip)"
-  wget -qO"$DISTR_FILE" "$URL"
+  wget -O"$DISTR_FILE" "$URL"
 fi
 
 DISTR_DIR="$(mktemp -d)"
