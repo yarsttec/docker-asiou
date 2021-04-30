@@ -3,5 +3,6 @@
 docker build \
   -t "$IMAGE_NAME" \
   -f Dockerfile \
+  --build-arg "ASIOU_SOURCE_PREFIX=http://ftp.sttec.yar.ru/asiou" \
   --build-arg "BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
   .

@@ -35,9 +35,11 @@ ENTRYPOINT ["/entrypoint.sh"]
 #
 # Install ASIOU distribution
 #
+ARG ASIOU_SOURCE_PREFIX=
 ENV ASIOU_VERSION=7.7.0
 RUN set -ex; \
     # Download and install
+    ASIOU_SOURCE_PREFIX="${ASIOU_SOURCE_PREFIX}" \
     "$WWW_HOME/scripts/install-asiou.sh"; \
     ln -s asiou/wsgi.py "$WWW_HOME/wsgi.py"; \
     # Apply patches

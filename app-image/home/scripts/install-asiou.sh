@@ -1,14 +1,19 @@
 #!/bin/bash
 set -ex
 
-URL="http://asiou.coikko.ru/static/upd_vers/x32/www${ASIOU_VERSION}.zip"
+ASIOU_SOURCE_PREFIX="${ASIOU_SOURCE_PREFIX:-"http://asiou.coikko.ru"}"
+URL="${ASIOU_SOURCE_PREFIX}/static/upd_vers/x32/www${ASIOU_VERSION}.zip"
+
+download() {
+  wget --progress=bar:force --tries=3 -O"$2" "$1"
+}
 
 if [ "$CACHE_DISTR_FILE" = "yes" ]; then
   DISTR_FILE="/tmp/asiou.zip"
-  [ ! -f "$DISTR_FILE" ] && wget -O"$DISTR_FILE" "$URL"
+  [ ! -f "$DISTR_FILE" ] && download "$URL" "$DISTR_FILE"
 else
   DISTR_FILE="$(mktemp --suffix .zip)"
-  wget -O"$DISTR_FILE" "$URL"
+  download "$URL" "$DISTR_FILE"
 fi
 
 DISTR_DIR="$(mktemp -d)"
