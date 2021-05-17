@@ -57,42 +57,42 @@
 +    check_call(["/usr/bin/zip", "-5", "-j", zipfile_fullname] + full_filenames)
 +
      return zipfile_name, s
-# --- a/asiou/reports/views.py
-# +++ b/asiou/reports/views.py
-# @@ -1001,6 +1001,7 @@
-#      # Захватываем ZIP из памяти и отдаем его
-#      resp_dict = HttpResponse(s.getvalue(), content_type="application/x-zip-compressed")
-#      resp_dict['Content-Disposition'] = 'attachment; filename=%s' % zipfile_name
-# +    resp_dict['X-Accel-Redirect'] = '/temp-download/%s' % zipfile_name
+--- a/asiou/reports/views.py
++++ b/asiou/reports/views.py
+@@ -1088,6 +1088,7 @@
+     # Захватываем ZIP из памяти и отдаем его
+     resp_dict = HttpResponse(s.getvalue(), content_type="application/x-zip-compressed")
+     resp_dict['Content-Disposition'] = 'attachment; filename={}'.format(zipfile_name)
++    resp_dict['X-Accel-Redirect'] = '/temp-download/{}'.format(zipfile_name)
 
-#      return resp_dict
+     return resp_dict
 
-# --- a/asiou/export_rhd/tasks.py
-# +++ b/asiou/export_rhd/tasks.py
-# @@ -8,6 +8,9 @@
-#  from asiou.export_rhd.utils import make_export_file
-#  from asiou.export_rhd.models import ASIOU_RHD_Export
+--- a/asiou/export_rhd/tasks.py
++++ b/asiou/export_rhd/tasks.py
+@@ -8,6 +8,9 @@
+ from asiou.export_rhd.utils import make_export_file
+ from asiou.export_rhd.models import ASIOU_RHD_Export
 
-# +from django.conf import settings
-# +import os
-# +
++from django.conf import settings
++import os
++
 
-#  class PackageLoadCallback(task.Task):
-#      """ Класс позволяет выполнить какие либо действия по результатам выгрузки,
+ class PackageLoadCallback(task.Task):
+     """ Класс позволяет выполнить какие либо действия по результатам выгрузки,
 # @@ -53,12 +56,15 @@
 
-#      try:
-#          filename, result = make_export_file(None, export_type,institution.pk)
-# +        full_filename = os.path.join(settings.APP_RID_EXPORT_DIR, filename)
-# +        with open(full_filename, mode='rb') as file:
-# +            result = file.read()
-#      except:
-#          raise Exception
+     try:
+         filename, result = make_export_file(None, export_type,institution.pk)
++        full_filename = os.path.join(settings.APP_RID_EXPORT_DIR, filename)
++        with open(full_filename, mode='rb') as file:
++            result = file.read()
+     except:
+         raise Exception
 
-#      # Постановка в очередь
-#      login, password, proto = _claim_get_user_passwd(institution)
-# -    files = {filename: result.getvalue()}
-# +    files = {filename: result}
-#      data = {'filename': filename}
-#      response = _do_rpc(
-#          'load_package', auth=(login, password), method='post', data=data,
+     # Постановка в очередь
+     login, password, proto = _claim_get_user_passwd(institution)
+-    files = {filename: result.getvalue()}
++    files = {filename: result}
+     data = {'filename': filename}
+     response = _do_rpc(
+         'load_package', auth=(login, password), method='post', data=data,
